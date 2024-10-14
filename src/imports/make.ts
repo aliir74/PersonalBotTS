@@ -5,8 +5,27 @@ import axios from "axios";
 export type MakeTask = {
     name: string;
     dueDate: string;
-    priority: string;
+    priority: MakePriority;
 };
+
+export enum MakePriority {
+    HIGH = 9,
+    MEDIUM = 5,
+    LOW = 1
+}
+
+export function convertToMakePriority(priority: string): MakePriority {
+    switch (priority) {
+        case "High":
+            return MakePriority.HIGH;
+        case "Medium":
+            return MakePriority.MEDIUM;
+        case "Low":
+            return MakePriority.LOW;
+        default:
+            return MakePriority.LOW;
+    }
+}
 
 export async function sendRequest(
     url: string,
