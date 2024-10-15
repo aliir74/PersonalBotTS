@@ -71,13 +71,14 @@ function convertToNotionTask(params: DatabaseObjectResponse): NotionTask {
 }
 
 export async function getTasksByDueDate(dueDate: Date): Promise<NotionTask[]> {
-    console.log("Getting tasks by due date", dueDate.toISOString());
+    const date = dueDate.toISOString().split("T")[0];
+    console.log("Getting tasks by due date", date);
     const response = await notionClient.databases.query({
         database_id: NOTION_DATABASE_ID,
         filter: {
             property: DUE_DATE_PROPERTY,
             date: {
-                before: dueDate.toISOString()
+                equals: date
             }
         }
     });
