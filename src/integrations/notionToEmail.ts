@@ -18,7 +18,7 @@ export async function notionToEmail() {
             subject: GOOGLE_SUBJECT,
             body:
                 task.properties.taskName +
-                " \n\nPriority: " +
+                " \n !" +
                 task.properties.priority.toLowerCase()
         } as Email;
     });
@@ -34,5 +34,5 @@ export async function notionToEmail() {
             console.log(`Email sent for task: ${task.body}`);
         })
     );
-    console.log("All emails sent");
+    console.log("All emails has been sent");
 }

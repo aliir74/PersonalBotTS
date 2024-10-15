@@ -76,10 +76,20 @@ export async function getTasksByDueDate(dueDate: Date): Promise<NotionTask[]> {
     const response = await notionClient.databases.query({
         database_id: NOTION_DATABASE_ID,
         filter: {
-            property: DUE_DATE_PROPERTY,
-            date: {
-                equals: date
-            }
+            and: [
+                {
+                    property: DUE_DATE_PROPERTY,
+                    date: {
+                        equals: date
+                    }
+                },
+                {
+                    property: "Status",
+                    status: {
+                        does_not_equal: TaskStatus.DONE
+                    }
+                }
+            ]
         }
     });
     console.log(`Converting ${response.results.length} record to notion task`);
