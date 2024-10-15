@@ -16,7 +16,10 @@ export async function notionToEmail() {
         return {
             to: GOOGLE_EMAIL,
             subject: GOOGLE_SUBJECT,
-            body: task.properties.taskName
+            body:
+                task.properties.taskName +
+                " \n\nPriority: " +
+                task.properties.priority.toLowerCase()
         } as Email;
     });
     const oauth2Client = await getOAuth2Client(
