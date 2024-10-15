@@ -55,10 +55,9 @@ jobs:
             fi
             cd personal-bot
 
-
             # Create or update environment file
             touch .env
             echo "${{ vars.ENVS }}" > .env
             echo "${{ secrets.ENVS }}" >> .env
 
-            docker run -d --env-file .env --name personal-bot ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:${{ github.sha }}
+            docker run -d --restart always --env-file .env --name personal-bot ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:${{ github.sha }}
