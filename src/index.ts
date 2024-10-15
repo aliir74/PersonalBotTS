@@ -1,3 +1,3 @@
-import { notionToMake } from "./integrations/notionToMake";
+import { notionToEmail } from "./integrations/notionToEmail";
 
-notionToMake();
+notionToEmail();
