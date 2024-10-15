@@ -1,3 +1,6 @@
 import { notionToEmail } from "./integrations/notionToEmail";
+import { schedule } from "node-cron";
 
-notionToEmail();
+schedule("* * * * *", () => {
+    notionToEmail();
+});

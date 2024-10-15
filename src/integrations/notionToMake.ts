@@ -1,5 +1,6 @@
 import { MAKE_WEBHOOK_URL } from "../environments";
-import { getTasksByDueDate, NotionTask } from "../exports/notion";
+import { getTasksByDueDate } from "../exports/notion";
+import { NotionTask } from "../clients/notion";
 import { sendRequest, MakeTask, convertToMakePriority } from "../imports/make";
 
 export async function notionToMake() {

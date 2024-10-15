@@ -8,7 +8,9 @@ import {
     GOOGLE_SUBJECT
 } from "../environments";
 
-import { getTasksByDueDate, NotionTask } from "../exports/notion";
+import { getTasksByDueDate } from "../exports/notion";
+import { NotionTask } from "../clients/notion";
+import { updateTasksToAutomated } from "../imports/notion";
 
 export async function notionToEmail() {
     const tasks: NotionTask[] = await getTasksByDueDate(new Date());
@@ -35,4 +37,7 @@ export async function notionToEmail() {
         })
     );
     console.log("All emails has been sent");
+    console.log("Updating tasks to automated in Notion");
+    await updateTasksToAutomated(tasks);
+    console.log("Tasks updated to automated in Notion");
 }
