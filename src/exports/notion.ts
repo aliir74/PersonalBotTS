@@ -32,7 +32,7 @@ export async function getTasksByDueDate(
         filters.push({
             property: "Automated",
             checkbox: {
-                equals: true
+                equals: false
             }
         });
     }
