@@ -6,7 +6,8 @@ export const DUE_DATE_PROPERTY = "Due";
 export enum TaskStatus {
     DONE = "Done",
     IN_PROGRESS = "In progress",
-    NOT_STARTED = "Not started"
+    NOT_STARTED = "Not started",
+    BLOCKED = "Blocked"
 }
 
 export enum TaskPriority {

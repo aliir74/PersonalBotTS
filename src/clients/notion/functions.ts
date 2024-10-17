@@ -70,7 +70,8 @@ export async function getNotionTasks(
     const statuses = [
         TaskStatus.DONE,
         TaskStatus.IN_PROGRESS,
-        TaskStatus.NOT_STARTED
+        TaskStatus.NOT_STARTED,
+        TaskStatus.BLOCKED
     ];
     statuses.forEach(async (status) => {
         filters.push({
