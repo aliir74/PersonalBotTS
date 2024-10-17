@@ -8,9 +8,11 @@ import {
     GOOGLE_SUBJECT
 } from "../environments";
 
-import { getTasksByDueDate } from "../exports/notion";
-import { NotionTask } from "../clients/notion";
-import { updateTasksToAutomated } from "../imports/notion";
+import { getTasksByDueDate } from "../clients/notion/functions";
+import { NotionTask } from "../clients/notion/types";
+import { updateTasksToAutomated } from "../clients/notion/functions";
+
+const INTEGRATION_LOG_PREFIX = "[Notion to Email]";
 
 export async function notionToEmail() {
     const tasks: NotionTask[] = await getTasksByDueDate(new Date());
@@ -21,7 +23,7 @@ export async function notionToEmail() {
             body:
                 task.properties.taskName +
                 " \n !" +
-                task.properties.priority.toLowerCase()
+                task.properties.priority?.toLowerCase()
         } as Email;
     });
     const oauth2Client = await getOAuth2Client(
@@ -33,11 +35,17 @@ export async function notionToEmail() {
     await Promise.all(
         emailTasks.map(async (task) => {
             await sendEmail(oauth2Client, task);
-            console.log(`Email sent for task: ${task.body}`);
+            console.log(
+                `${INTEGRATION_LOG_PREFIX} Email sent for task: ${task.body}`
+            );
         })
     );
-    console.log("All emails has been sent");
-    console.log("Updating tasks to automated in Notion");
+    console.log(`${INTEGRATION_LOG_PREFIX} All emails has been sent`);
+    console.log(
+        `${INTEGRATION_LOG_PREFIX} Updating tasks to automated in Notion`
+    );
     await updateTasksToAutomated(tasks);
-    console.log("Tasks updated to automated in Notion");
+    console.log(
+        `${INTEGRATION_LOG_PREFIX} Tasks updated to automated in Notion`
+    );
 }

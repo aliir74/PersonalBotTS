@@ -1,14 +1,12 @@
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
-import { NOTION_INTEGRATION_TOKEN } from "../environments";
-
-import { Client } from "@notionhq/client";
+import { ClickUpStatus, ClickUpTask } from "../clickup/types";
 
 export const DUE_DATE_PROPERTY = "Due";
 
 export enum TaskStatus {
     DONE = "Done",
-    IN_PROGRESS = "In Progress",
-    NOT_STARTED = "Not Started"
+    IN_PROGRESS = "In progress",
+    NOT_STARTED = "Not started"
 }
 
 export enum TaskPriority {
@@ -17,25 +15,36 @@ export enum TaskPriority {
     HIGH = "High"
 }
 
+export enum TaskType {
+    DEVELOPMENT = "Development",
+    ANALYSIS = "Analysis",
+    REVIEW = "Review",
+    VERIFY = "Verify",
+    DEPLOY = "Deploy"
+}
+
 export type NotionProperties = {
-    completedOn: boolean;
+    completedOn?: boolean;
     taskName: string;
     status: TaskStatus;
-    due: string;
-    priority: TaskPriority;
-    projectId: string;
+    due?: string;
+    priority?: TaskPriority;
+    projectId?: string;
     automated: boolean;
+    type?: TaskType;
+    link?: string;
 };
 
 export type NotionTask = {
-    id: string;
-    createdTime: Date;
-    lastEditedTime: Date;
-    archived: boolean;
-    inTrash: boolean;
-    icon: string | null;
-    cover: string | null;
-    url: string;
+    id?: string;
+    createdTime?: Date;
+    lastEditedTime?: Date;
+    archived?: boolean;
+    inTrash?: boolean;
+    icon?: string | null;
+    cover?: string | null;
+    url?: string;
+    content: string;
     properties: NotionProperties;
 };
 
@@ -44,12 +53,15 @@ export function convertToNotionProperty(
 ): NotionProperties {
     return {
         completedOn: params["Completed on"]?.date,
-        taskName: params["Task name"]?.title[0]?.text?.content,
+        taskName:
+            params["Task name"]?.title[0]?.text?.content ||
+            params["Name"]?.title[0]?.text?.content,
         status: params.Status?.status?.name,
         due: params.Due?.date?.start,
         priority: params.Priority?.select?.name ?? TaskPriority.LOW,
-        projectId: params.Project?.relation[0]?.id,
-        automated: params.Automated?.checkbox
+        automated: params.Automated?.checkbox,
+        type: params.Type?.status?.name,
+        link: params.Link?.url
     };
 }
 
@@ -68,9 +80,7 @@ export function convertToNotionTask(
                 ? params.cover.external.url
                 : null,
         url: params.url,
+        content: "",
         properties: convertToNotionProperty(params.properties)
     };
 }
-export const notionClient = new Client({
-    auth: NOTION_INTEGRATION_TOKEN
-});

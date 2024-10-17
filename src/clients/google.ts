@@ -120,7 +120,6 @@ export async function sendEmail(
                 raw: encodedMessage
             }
         });
-        console.log("Email sent successfully");
     } catch (error) {
         console.error("Error sending email:", error);
         throw error;
