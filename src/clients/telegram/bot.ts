@@ -4,4 +4,4 @@ export const bot = new Bot(TELEGRAM_BOT_TOKEN);
 
 bot.start();
 
-bot.api.sendMessage(MY_TELEGRAM_USER_ID, `✔️Code is deployed successfully!`);
+bot.api.sendMessage(MY_TELEGRAM_USER_ID, `✅ Code is deployed successfully!`);
