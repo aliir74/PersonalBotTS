@@ -20,3 +20,13 @@ export const CLICKUP_LIST_ID = Number(process.env.CLICKUP_LIST_ID ?? "");
 export const CLICKUP_USER_ID = Number(process.env.CLICKUP_USER_ID ?? "");
 export const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL ?? "";
 export const GOOGLE_SUBJECT = process.env.GOOGLE_SUBJECT ?? "";
+
+export const MRBILIT_URL = process.env.MRBILIT_URL ?? "";
+
+export const KAVENEGAR_API_KEY = process.env.KAVENEGAR_API_KEY ?? "";
+
+export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? "";
+export const TELEGRAM_GROUP_ID = Number(process.env.TELEGRAM_GROUP_ID ?? "");
+export const MY_TELEGRAM_USER_ID = Number(
+    process.env.MY_TELEGRAM_USER_ID ?? ""
+);

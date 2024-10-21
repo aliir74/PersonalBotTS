@@ -24,6 +24,8 @@
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "googleapis": "^144.0.0",
+    "grammy": "^1.30.0",
+    "kavenegar": "^1.1.4",
     "node-cron": "^3.0.3"
   }
 }
