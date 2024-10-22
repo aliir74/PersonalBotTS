@@ -3,7 +3,7 @@ import { schedule } from "node-cron";
 import { clickupToNotion } from "./integrations/clickupToNotion";
 import { mrbilitToTelegram } from "./integrations/mrbilitToTelegram";
 import { FilterTrain } from "./clients/mrbilit/types";
-import { MY_TELEGRAM_USER_ID } from "./environments";
+import { MY_TELEGRAM_USER_ID, TELEGRAM_GROUP_ID } from "./environments";
 import { bot } from "./clients/telegram/bot";
 // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 schedule("*/15 8-23 * * *", async () => {
@@ -33,6 +33,7 @@ schedule("*/15 * * * *", async () => {
         1,
         130,
         new Date(Date.UTC(2024, 10, 6)),
+        5,
         filterTehranToShahrud
     );
 
@@ -49,10 +50,19 @@ schedule("*/15 * * * *", async () => {
         130,
         1,
         new Date(Date.UTC(2024, 10, 8)),
+        1,
         filterShahrudToTehran
     );
 });
 // Every 15 minutes, Bot active check
 schedule("0 0 * * *", async () => {
     await bot.api.sendMessage(MY_TELEGRAM_USER_ID, "Bot is active");
+});
+
+bot.command("status-trains", async (ctx) => {
+    if (ctx.message?.chat.id !== TELEGRAM_GROUP_ID) {
+        return;
+    }
+    await mrbilitToTelegram(1, 130, new Date(Date.UTC(2024, 10, 6)), 5);
+    await mrbilitToTelegram(130, 1, new Date(Date.UTC(2024, 10, 8)), 1);
 });
