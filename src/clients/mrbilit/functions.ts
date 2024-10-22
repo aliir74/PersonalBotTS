@@ -73,5 +73,6 @@ export function filterTrains(trains: Train[], filter: FilterTrain): Train[] {
 
 export function properTrainDataDisplay(train: Train) {
     const firstClass = train.Prices[0].Classes[0];
-    return `🚉${firstClass.WagonName} - ${train.FromName} ${train.DepartureTime} - ${train.ToName} ${train.ArrivalTime} - ${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}`;
+    const strikethroughStyle = firstClass.IsAvailable ? "" : "~~";
+    return `🚉${strikethroughStyle}${firstClass.WagonName} \n ${train.FromName} به ${train.ToName} \n ${train.DepartureTime} - ${train.ArrivalTime} \n ${strikethroughStyle}${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}${strikethroughStyle}`;
 }
