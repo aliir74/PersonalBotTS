@@ -32,7 +32,7 @@ export async function mrbilitToTelegram(
         if (filteredTrains.length > 0) {
             const message = filteredTrains
                 .map((train) => properTrainDataDisplayMarkdown(train))
-                .join("\n______________________\n");
+                .join("\n\n");
             await bot.api.sendMessage(
                 TELEGRAM_GROUP_ID,
                 `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`,
@@ -42,7 +42,7 @@ export async function mrbilitToTelegram(
     } else {
         const message = trainSchedule.Trains.map((train) =>
             properTrainDataDisplayMarkdown(train)
-        ).join("\n______________________\n");
+        ).join("\n\n");
         await bot.api.sendMessage(
             TELEGRAM_GROUP_ID,
             `🐈🐈🐈\n${message}\n🐈🐈🐈`,

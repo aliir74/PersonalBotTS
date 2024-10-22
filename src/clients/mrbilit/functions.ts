@@ -76,6 +76,6 @@ export function properTrainDataDisplayMarkdown(train: Train) {
     const strikethroughStyle = firstClass.IsAvailable ? "" : "~";
     return `🚉${strikethroughStyle}${firstClass.WagonName}${strikethroughStyle}\n
     ${strikethroughStyle}${train.FromName} به ${train.ToName}${strikethroughStyle}\n 
-    ${strikethroughStyle}${train.DepartureTime} \\- ${train.ArrivalTime}${strikethroughStyle}\n 
+    ${strikethroughStyle}${train.DepartureTime} ${train.ArrivalTime}${strikethroughStyle}\n 
     ${strikethroughStyle}${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}${strikethroughStyle}`;
 }
