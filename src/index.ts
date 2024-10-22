@@ -5,6 +5,7 @@ import { mrbilitToTelegram } from "./integrations/mrbilitToTelegram";
 import { FilterTrain } from "./clients/mrbilit/types";
 import { MY_TELEGRAM_USER_ID, TELEGRAM_GROUP_ID } from "./environments";
 import { bot } from "./clients/telegram/bot";
+import "./integrations/telegramBot";
 // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 schedule("*/15 8-23 * * *", async () => {
     await notionToEmail();
