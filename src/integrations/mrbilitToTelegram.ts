@@ -1,7 +1,7 @@
 import {
     filterTrains,
     getTrainSchedule,
-    properTrainDataDisplayMarkdown
+    properTrainDataDisplay
 } from "../clients/mrbilit/functions";
 import { bot } from "../clients/telegram/bot";
 import { TELEGRAM_GROUP_ID } from "../environments";
@@ -31,22 +31,20 @@ export async function mrbilitToTelegram(
         );
         if (filteredTrains.length > 0) {
             const message = filteredTrains
-                .map((train) => properTrainDataDisplayMarkdown(train))
+                .map((train) => properTrainDataDisplay(train))
                 .join("\n\n");
             await bot.api.sendMessage(
                 TELEGRAM_GROUP_ID,
-                `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`.replace("-", "\\-"),
-                { parse_mode: "MarkdownV2" }
+                `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`
             );
         }
     } else {
         const message = trainSchedule.Trains.map((train) =>
-            properTrainDataDisplayMarkdown(train)
+            properTrainDataDisplay(train)
         ).join("\n\n");
         await bot.api.sendMessage(
             TELEGRAM_GROUP_ID,
-            `🐈🐈🐈\n${message}\n🐈🐈🐈`.replace("-", "\\-"),
-            { parse_mode: "MarkdownV2" }
+            `🐈🐈🐈\n${message}\n🐈🐈🐈`
         );
     }
 }

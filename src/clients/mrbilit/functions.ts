@@ -71,7 +71,7 @@ export function filterTrains(trains: Train[], filter: FilterTrain): Train[] {
     return filteredTrains;
 }
 
-export function properTrainDataDisplayMarkdown(train: Train) {
+export function properTrainDataDisplay(train: Train) {
     const firstClass = train.Prices[0].Classes[0];
     const strikethroughStyle = firstClass.IsAvailable ? "" : "~";
     return `🚉${strikethroughStyle}${firstClass.WagonName}${strikethroughStyle}\n
