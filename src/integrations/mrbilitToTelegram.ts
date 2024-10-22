@@ -35,7 +35,7 @@ export async function mrbilitToTelegram(
                 .join("\n\n");
             await bot.api.sendMessage(
                 TELEGRAM_GROUP_ID,
-                `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`,
+                `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`.replace("-", "\\-"),
                 { parse_mode: "MarkdownV2" }
             );
         }
@@ -45,7 +45,7 @@ export async function mrbilitToTelegram(
         ).join("\n\n");
         await bot.api.sendMessage(
             TELEGRAM_GROUP_ID,
-            `🐈🐈🐈\n${message}\n🐈🐈🐈`,
+            `🐈🐈🐈\n${message}\n🐈🐈🐈`.replace("-", "\\-"),
             { parse_mode: "MarkdownV2" }
         );
     }
