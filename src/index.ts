@@ -60,6 +60,9 @@ schedule("0 0 * * *", async () => {
 });
 
 bot.command("status_trains", async (ctx) => {
+    console.log(ctx.message);
+    console.log("status_trains");
+    console.log(ctx.channelPost?.chat.id);
     if (ctx.channelPost?.chat.id !== TELEGRAM_GROUP_ID) {
         return;
     }
