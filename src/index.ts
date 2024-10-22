@@ -59,7 +59,7 @@ schedule("0 0 * * *", async () => {
     await bot.api.sendMessage(MY_TELEGRAM_USER_ID, "Bot is active");
 });
 
-bot.command("status-trains", async (ctx) => {
+bot.command("status_trains", async (ctx) => {
     if (ctx.message?.chat.id !== TELEGRAM_GROUP_ID) {
         return;
     }
