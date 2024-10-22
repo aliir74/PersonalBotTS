@@ -70,3 +70,8 @@ export function filterTrains(trains: Train[], filter: FilterTrain): Train[] {
 
     return filteredTrains;
 }
+
+export function properTrainDataDisplay(train: Train) {
+    const firstClass = train.Prices[0].Classes[0];
+    return `🚉${firstClass.WagonName} - ${train.FromName} ${train.DepartureTime} - ${train.ToName} ${train.ArrivalTime} - ${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}`;
+}

@@ -1,4 +1,8 @@
-import { filterTrains, getTrainSchedule } from "../clients/mrbilit/functions";
+import {
+    filterTrains,
+    getTrainSchedule,
+    properTrainDataDisplay
+} from "../clients/mrbilit/functions";
 import { bot } from "../clients/telegram/bot";
 import { TELEGRAM_GROUP_ID } from "../environments";
 import { FilterTrain, getCityName } from "../clients/mrbilit/types";
@@ -26,15 +30,21 @@ export async function mrbilitToTelegram(
             `${INTEGRATION_LOG_PREFIX} ${filteredTrains.length} filtered trains found for ${date.toISOString().split("T")[0]}`
         );
         if (filteredTrains.length > 0) {
+            const message = filteredTrains
+                .map((train) => properTrainDataDisplay(train))
+                .join("\n");
             await bot.api.sendMessage(
                 TELEGRAM_GROUP_ID,
-                `⚠ Found ${filteredTrains.length} trains for ${date.toISOString().split("T")[0]} from ${getCityName(from)} to ${getCityName(to)}`
+                `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`
             );
         }
     } else {
+        const message = trainSchedule.Trains.map((train) =>
+            properTrainDataDisplay(train)
+        ).join("\n");
         await bot.api.sendMessage(
             TELEGRAM_GROUP_ID,
-            `Found ${trainSchedule.Trains.length} trains for ${date.toISOString().split("T")[0]} from ${getCityName(from)} to ${getCityName(to)}`
+            `🐈🐈🐈\n${message}\n🐈🐈🐈`
         );
     }
 }
