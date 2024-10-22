@@ -60,9 +60,10 @@ schedule("0 0 * * *", async () => {
 });
 
 bot.command("status_trains", async (ctx) => {
-    if (ctx.message?.chat.id !== TELEGRAM_GROUP_ID) {
+    if (ctx.channelPost?.chat.id !== TELEGRAM_GROUP_ID) {
         return;
     }
+    console.log(ctx);
     await mrbilitToTelegram(1, 130, new Date(Date.UTC(2024, 10, 6)), 5);
     await mrbilitToTelegram(130, 1, new Date(Date.UTC(2024, 10, 8)), 1);
 });
