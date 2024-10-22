@@ -71,11 +71,11 @@ export function filterTrains(trains: Train[], filter: FilterTrain): Train[] {
     return filteredTrains;
 }
 
-export function properTrainDataDisplay(train: Train) {
+export function properTrainDataDisplayMarkdown(train: Train) {
     const firstClass = train.Prices[0].Classes[0];
-    const strikethroughStyle = firstClass.IsAvailable ? "" : "~~";
-    return encodeURIComponent(`🚉${strikethroughStyle}${firstClass.WagonName}${strikethroughStyle}\n
+    const strikethroughStyle = firstClass.IsAvailable ? "" : "~";
+    return `🚉${strikethroughStyle}${firstClass.WagonName}${strikethroughStyle}\n
     ${strikethroughStyle}${train.FromName} به ${train.ToName}${strikethroughStyle}\n 
     ${strikethroughStyle}${train.DepartureTime} - ${train.ArrivalTime}${strikethroughStyle}\n 
-    ${strikethroughStyle}${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}${strikethroughStyle}`);
+    ${strikethroughStyle}${firstClass.IsAvailable ? `✅${firstClass.Capacity}` : "❌"}${strikethroughStyle}`;
 }
