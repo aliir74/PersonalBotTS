@@ -15,8 +15,20 @@ bot.command("status_trains", async (ctx) => {
     }
     const message = await ctx.reply("Wait a minute...");
     try {
-        await mrbilitToTelegram(1, 130, new Date(Date.UTC(2024, 10, 6)), 5);
-        await mrbilitToTelegram(130, 1, new Date(Date.UTC(2024, 10, 8)), 1);
+        await mrbilitToTelegram(
+            1,
+            130,
+            new Date(Date.UTC(2024, 10, 6)),
+            5,
+            ctx.message?.chat.id
+        );
+        await mrbilitToTelegram(
+            130,
+            1,
+            new Date(Date.UTC(2024, 10, 8)),
+            1,
+            ctx.message?.chat.id
+        );
     } catch (error) {
         await log(
             (error as Error).message,

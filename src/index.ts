@@ -45,6 +45,7 @@ schedule("*/15 * * * *", async () => {
             130,
             new Date(Date.UTC(2024, 10, 6)),
             5,
+            TELEGRAM_GROUP_ID,
             filterTehranToShahrud
         );
     } catch (error) {
@@ -70,6 +71,7 @@ schedule("*/15 * * * *", async () => {
             1,
             new Date(Date.UTC(2024, 10, 8)),
             1,
+            TELEGRAM_GROUP_ID,
             filterShahrudToTehran
         );
     } catch (error) {

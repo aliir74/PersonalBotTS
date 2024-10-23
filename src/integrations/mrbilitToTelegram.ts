@@ -13,6 +13,7 @@ export async function mrbilitToTelegram(
     to: number,
     date: Date,
     adultCount: number,
+    telegramChatId: number,
     filter?: FilterTrain
 ) {
     const trainSchedule = await getTrainSchedule({
@@ -38,7 +39,7 @@ export async function mrbilitToTelegram(
                 .map((train) => properTrainDataDisplay(train))
                 .join("\n\n");
             await bot.api.sendMessage(
-                TELEGRAM_GROUP_ID,
+                telegramChatId,
                 `⚠⚠⚠\n\n${message}\n\n⚠⚠⚠`,
                 { parse_mode: "MarkdownV2" }
             );
@@ -48,7 +49,7 @@ export async function mrbilitToTelegram(
             properTrainDataDisplay(train)
         ).join("\n\n");
         await bot.api.sendMessage(
-            TELEGRAM_GROUP_ID,
+            telegramChatId,
             `🐈🐈🐈\n${message}\n🐈🐈🐈`,
             { parse_mode: "MarkdownV2" }
         );
