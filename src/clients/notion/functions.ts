@@ -81,7 +81,7 @@ export async function getNotionTasks(
             }
         });
     });
-    const tenDaysAgo = new Date(new Date().setDate(new Date().getDate() - 10))
+    const oneMonthAgo = new Date(new Date().setDate(new Date().getDate() - 30))
         .toISOString()
         .split("T")[0];
     const response = await notionClient.databases.query({
@@ -93,7 +93,7 @@ export async function getNotionTasks(
                         {
                             property: "Date",
                             date: {
-                                after: tenDaysAgo
+                                after: oneMonthAgo
                             }
                         },
                         {
