@@ -6,7 +6,7 @@ const readline = createInterface({
     output: process.stdout
 });
 
-async function createOAuth2Client(
+export async function createOAuth2Client(
     clientId: string,
     clientSecret: string,
     redirectUri: string

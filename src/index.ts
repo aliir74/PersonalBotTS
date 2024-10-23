@@ -8,12 +8,28 @@ import { bot } from "./clients/telegram/bot";
 import "./integrations/telegramBot";
 // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 schedule("*/15 8-23 * * *", async () => {
-    await notionToEmail();
+    try {
+        await notionToEmail();
+    } catch (error) {
+        console.error(error);
+        await bot.api.sendMessage(
+            MY_TELEGRAM_USER_ID,
+            `⚠⚠⚠Error in notionToEmail: ${error}`
+        );
+    }
 });
 
 // Every 5 minutes, between 08:00 AM and 11:59 PM, Weekdays
 schedule("*/5 8-23 * * 1-5", async () => {
-    await clickupToNotion();
+    try {
+        await clickupToNotion();
+    } catch (error) {
+        console.error(error);
+        await bot.api.sendMessage(
+            MY_TELEGRAM_USER_ID,
+            `⚠⚠⚠Error in clickupToNotion: ${error}`
+        );
+    }
 });
 
 // Every 15 minutes, Check trains
@@ -30,14 +46,21 @@ schedule("*/15 * * * *", async () => {
         BusInclude: false,
         CompartmentCapacityInclude: true
     };
-    await mrbilitToTelegram(
-        1,
-        130,
-        new Date(Date.UTC(2024, 10, 6)),
-        5,
-        filterTehranToShahrud
-    );
-
+    try {
+        await mrbilitToTelegram(
+            1,
+            130,
+            new Date(Date.UTC(2024, 10, 6)),
+            5,
+            filterTehranToShahrud
+        );
+    } catch (error) {
+        console.error(error);
+        await bot.api.sendMessage(
+            MY_TELEGRAM_USER_ID,
+            `⚠⚠⚠Error in mrbilitToTelegram: ${error}`
+        );
+    }
     const filterShahrudToTehran: FilterTrain = {
         PassengerCount: 1,
         DepartureTime: {
@@ -47,13 +70,21 @@ schedule("*/15 * * * *", async () => {
         BusInclude: false,
         CompartmentCapacityInclude: false
     };
-    await mrbilitToTelegram(
-        130,
-        1,
-        new Date(Date.UTC(2024, 10, 8)),
-        1,
-        filterShahrudToTehran
-    );
+    try {
+        await mrbilitToTelegram(
+            130,
+            1,
+            new Date(Date.UTC(2024, 10, 8)),
+            1,
+            filterShahrudToTehran
+        );
+    } catch (error) {
+        console.error(error);
+        await bot.api.sendMessage(
+            MY_TELEGRAM_USER_ID,
+            `⚠⚠⚠Error in mrbilitToTelegram: ${error}`
+        );
+    }
 });
 // Every 15 minutes, Bot active check
 schedule("0 0 * * *", async () => {
