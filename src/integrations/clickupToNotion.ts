@@ -12,6 +12,7 @@ import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
 
+// TODO: Some tasks are not being updated in Notion
 export async function clickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await getMyTasksFromClickUp();
     const notionTasks: NotionTask[] = await getNotionTasks(
@@ -65,8 +66,10 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         );
     }
 
-    const stillAssignedTasks: NotionTask[] =
-        findStillAssignedTasksButDoneInNotion(clickupTasks, notionTasks);
+    const stillAssignedTasks: {
+        notionTask: NotionTask;
+        clickupTask: ClickUpTask;
+    }[] = findStillAssignedTasksButDoneInNotion(clickupTasks, notionTasks);
     await log(
         `Updating ${stillAssignedTasks.length} tasks to not started in Notion`,
         "ClickUp to Notion",
@@ -74,7 +77,7 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
     );
     await Promise.all(
         stillAssignedTasks.map((task) => {
-            updateTasksToNotStarted(task);
+            updateNotionTasksFromClickUp(task);
         })
     );
     if (stillAssignedTasks.length !== 0) {
@@ -94,16 +97,26 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
     }
 }
 
-async function updateTasksToNotStarted(notionTask: NotionTask): Promise<void> {
-    if (!notionTask.id) {
+async function updateNotionTasksFromClickUp(task: {
+    notionTask: NotionTask;
+    clickupTask: ClickUpTask;
+}): Promise<void> {
+    if (!task.notionTask.id) {
         return;
     }
     await notionClient.pages.update({
-        page_id: notionTask.id,
+        page_id: task.notionTask.id,
         properties: {
             Status: {
                 status: {
                     name: TaskStatus.NOT_STARTED
+                }
+            },
+            Type: {
+                status: {
+                    name: convertClickUpStatusToTaskType(
+                        task.clickupTask.status
+                    )
                 }
             }
         }
@@ -169,15 +182,25 @@ function findNotAutomatedTasks(
 function findStillAssignedTasksButDoneInNotion(
     clickupTasks: ClickUpTask[],
     notionTasks: NotionTask[]
-): NotionTask[] {
-    return notionTasks.filter((task) => {
-        return clickupTasks.find(
-            (clickupTask) =>
-                task.properties.link === clickupTask.url &&
-                task.properties.status === TaskStatus.DONE
+): { notionTask: NotionTask; clickupTask: ClickUpTask }[] {
+    return notionTasks
+        .filter((task) => task.properties.status === TaskStatus.DONE)
+        .map((notionTask) => {
+            const relatedClickupTask = clickupTasks.find(
+                (clickupTask) => notionTask.properties.link === clickupTask.url
+            );
+            return relatedClickupTask
+                ? { notionTask, clickupTask: relatedClickupTask }
+                : null;
+        })
+        .filter(
+            (
+                result
+            ): result is { notionTask: NotionTask; clickupTask: ClickUpTask } =>
+                result !== null
         );
-    });
 }
+
 function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
     return {
         createdTime: new Date(),
