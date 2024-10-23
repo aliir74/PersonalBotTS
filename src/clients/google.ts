@@ -1,6 +1,6 @@
 import { google, Auth } from "googleapis";
 import { createInterface } from "readline";
-
+import { log } from "./logger";
 const readline = createInterface({
     input: process.stdin,
     output: process.stdout
@@ -24,7 +24,11 @@ export async function createOAuth2Client(
         prompt: "consent"
     });
 
-    console.log("Authorize this app by visiting this url:", authorizationUrl);
+    await log(
+        `Authorize this app by visiting this url: ${authorizationUrl}`,
+        "Google OAuth2",
+        "success"
+    );
 
     const authorizationCode = await new Promise<string>((resolve) => {
         readline.question("Enter the authorization code: ", (code: string) => {
@@ -32,18 +36,35 @@ export async function createOAuth2Client(
             resolve(code.trim());
         });
     });
-    console.log("Authorization code:", authorizationCode);
+    await log(
+        `Authorization code: ${authorizationCode}`,
+        "Google OAuth2",
+        "success"
+    );
 
     try {
         const { tokens } = await oauth2Client.getToken(authorizationCode);
         oauth2Client.setCredentials(tokens);
 
-        console.log("Refresh token:", tokens.refresh_token);
+        await log(
+            `Refresh token: ${tokens.refresh_token}`,
+            "Google OAuth2",
+            "success"
+        );
 
-        console.log("OAuth2 client created successfully");
+        await log(
+            "OAuth2 client created successfully",
+            "Google OAuth2",
+            "success"
+        );
         return oauth2Client;
     } catch (error) {
-        console.error("Error creating OAuth2 client:", error);
+        await log(
+            `Error creating OAuth2 client: ${error}`,
+            "Google OAuth2",
+            "error",
+            true
+        );
         throw error;
     }
 }

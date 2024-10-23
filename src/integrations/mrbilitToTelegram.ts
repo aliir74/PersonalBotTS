@@ -6,7 +6,7 @@ import {
 import { bot } from "../clients/telegram/bot";
 import { TELEGRAM_GROUP_ID } from "../environments";
 import { FilterTrain } from "../clients/mrbilit/types";
-
+import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[MrBilit to Telegram]";
 export async function mrbilitToTelegram(
     from: number,
@@ -21,13 +21,17 @@ export async function mrbilitToTelegram(
         date: date,
         adultCount: adultCount
     });
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} ${trainSchedule.Trains.length} trains found for ${date.toISOString().split("T")[0]}`
+    await log(
+        `${trainSchedule.Trains.length} trains found for ${date.toISOString().split("T")[0]}`,
+        "MrBilit to Telegram",
+        "success"
     );
     if (filter) {
         const filteredTrains = filterTrains(trainSchedule.Trains, filter);
-        console.log(
-            `${INTEGRATION_LOG_PREFIX} ${filteredTrains.length} filtered trains found for ${date.toISOString().split("T")[0]}`
+        await log(
+            `${filteredTrains.length} filtered trains found for ${date.toISOString().split("T")[0]}`,
+            "MrBilit to Telegram",
+            "success"
         );
         if (filteredTrains.length > 0) {
             const message = filteredTrains

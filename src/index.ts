@@ -6,16 +6,13 @@ import { FilterTrain } from "./clients/mrbilit/types";
 import { MY_TELEGRAM_USER_ID, TELEGRAM_GROUP_ID } from "./environments";
 import { bot } from "./clients/telegram/bot";
 import "./integrations/telegramBot";
+import { log } from "./clients/logger";
 // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 schedule("*/15 8-23 * * *", async () => {
     try {
         await notionToEmail();
     } catch (error) {
-        console.error(error);
-        await bot.api.sendMessage(
-            MY_TELEGRAM_USER_ID,
-            `⚠⚠⚠Error in notionToEmail: ${error}`
-        );
+        await log((error as Error).message, "Notion to Email", "error", true);
     }
 });
 
@@ -24,11 +21,7 @@ schedule("*/5 8-23 * * 1-5", async () => {
     try {
         await clickupToNotion();
     } catch (error) {
-        console.error(error);
-        await bot.api.sendMessage(
-            MY_TELEGRAM_USER_ID,
-            `⚠⚠⚠Error in clickupToNotion: ${error}`
-        );
+        await log((error as Error).message, "ClickUp to Notion", "error", true);
     }
 });
 
@@ -55,10 +48,11 @@ schedule("*/15 * * * *", async () => {
             filterTehranToShahrud
         );
     } catch (error) {
-        console.error(error);
-        await bot.api.sendMessage(
-            MY_TELEGRAM_USER_ID,
-            `⚠⚠⚠Error in mrbilitToTelegram: ${error}`
+        await log(
+            (error as Error).message,
+            "Mrbilit to Telegram",
+            "error",
+            true
         );
     }
     const filterShahrudToTehran: FilterTrain = {
@@ -79,14 +73,15 @@ schedule("*/15 * * * *", async () => {
             filterShahrudToTehran
         );
     } catch (error) {
-        console.error(error);
-        await bot.api.sendMessage(
-            MY_TELEGRAM_USER_ID,
-            `⚠⚠⚠Error in mrbilitToTelegram: ${error}`
+        await log(
+            (error as Error).message,
+            "Mrbilit to Telegram",
+            "error",
+            true
         );
     }
 });
 // Every 15 minutes, Bot active check
 schedule("0 0 * * *", async () => {
-    await bot.api.sendMessage(MY_TELEGRAM_USER_ID, "Bot is active");
+    await log("Bot is active", "Bot active check", "success", true);
 });

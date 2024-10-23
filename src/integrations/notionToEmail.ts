@@ -5,13 +5,15 @@ import {
     GOOGLE_REFRESH_TOKEN,
     GOOGLE_REDIRECT_URI,
     GOOGLE_EMAIL,
-    GOOGLE_SUBJECT
+    GOOGLE_SUBJECT,
+    MY_TELEGRAM_USER_ID
 } from "../environments";
 
 import { getTasksByDueDate } from "../clients/notion/functions";
 import { NotionTask } from "../clients/notion/types";
 import { updateTasksToAutomated } from "../clients/notion/functions";
-
+import { bot } from "../clients/telegram/bot";
+import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[Notion to Email]";
 
 export async function notionToEmail() {
@@ -26,6 +28,10 @@ export async function notionToEmail() {
                 task.properties.priority?.toLowerCase()
         } as Email;
     });
+    if (emailTasks.length === 0) {
+        await log(`No tasks to send`, "Notion to Email", "success");
+        return;
+    }
     const oauth2Client = await getOAuth2Client(
         GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET,
@@ -35,17 +41,33 @@ export async function notionToEmail() {
     await Promise.all(
         emailTasks.map(async (task) => {
             await sendEmail(oauth2Client, task);
-            console.log(
-                `${INTEGRATION_LOG_PREFIX} Email sent for task: ${task.body}`
+            await log(
+                `Email sent for task: ${task.body}`,
+                "Notion to Email",
+                "success"
             );
         })
     );
-    console.log(`${INTEGRATION_LOG_PREFIX} All emails has been sent`);
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Updating tasks to automated in Notion`
+    await log(
+        `${emailTasks.length} emails has been sent`,
+        "Notion to Email",
+        "success"
+    );
+    await log(
+        `Updating tasks to automated in Notion`,
+        "Notion to Email",
+        "success"
     );
     await updateTasksToAutomated(tasks);
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Tasks updated to automated in Notion`
+    await log(
+        `${tasks.length} tasks updated to automated in Notion`,
+        "Notion to Email",
+        "success"
+    );
+    await log(
+        `${tasks.length} tasks integrated with email`,
+        "Notion to Email",
+        "success",
+        true
     );
 }

@@ -110,9 +110,6 @@ export async function getNotionTasks(
             ]
         }
     });
-    // response.results.forEach((result) => {
-    //     console.log(result);
-    // });
     return response.results.map((result) => {
         return convertToNotionTask(result as DatabaseObjectResponse);
     });

@@ -1,4 +1,7 @@
-import { NOTION_WORKLOG_DATABASE_ID } from "../environments";
+import {
+    MY_TELEGRAM_USER_ID,
+    NOTION_WORKLOG_DATABASE_ID
+} from "../environments";
 
 import { getMyTasksFromClickUp } from "../clients/clickup/functions";
 import { NotionTask, TaskStatus, TaskType } from "../clients/notion/types";
@@ -6,7 +9,7 @@ import { getNotionTasks } from "../clients/notion/functions";
 import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
-
+import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
 
 export async function clickupToNotion() {
@@ -14,41 +17,67 @@ export async function clickupToNotion() {
     const notionTasks: NotionTask[] = await getNotionTasks(
         NOTION_WORKLOG_DATABASE_ID
     );
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Got ${notionTasks.length} tasks from Notion`
+    await log(
+        `${notionTasks.length} tasks from Notion`,
+        "ClickUp to Notion",
+        "success"
     );
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Got ${clickupTasks.length} tasks from ClickUp`
+    await log(
+        `${clickupTasks.length} tasks from ClickUp`,
+        "ClickUp to Notion",
+        "success"
     );
     const notAutomatedTasks: ClickUpTask[] = findNotAutomatedTasks(
         clickupTasks,
         notionTasks
     );
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Not automated tasks: ${notAutomatedTasks.length} out of ${clickupTasks.length}`
+    await log(
+        `${notAutomatedTasks.length} not automated tasks out of ${clickupTasks.length}`,
+        "ClickUp to Notion",
+        "success"
     );
     const newNotionTasks: NotionTask[] = notAutomatedTasks.map((task) => {
         return convertClickUpToNotionTask(task);
     });
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Creating ${newNotionTasks.length} new tasks in Notion`
+    await log(
+        `Creating ${newNotionTasks.length} new tasks in Notion`,
+        "ClickUp to Notion",
+        "success"
     );
     await Promise.all(
         newNotionTasks.map((task) => {
             createNotionTask(task);
         })
     );
+    if (newNotionTasks.length !== 0) {
+        await log(
+            `${newNotionTasks.length} new tasks created in Notion`,
+            "ClickUp to Notion",
+            "success",
+            true
+        );
+    }
+
     const stillAssignedTasks: NotionTask[] =
         findStillAssignedTasksButDoneInNotion(clickupTasks, notionTasks);
-    console.log(
-        `${INTEGRATION_LOG_PREFIX} Updating ${stillAssignedTasks.length} tasks to not started in Notion`
+    await log(
+        `Updating ${stillAssignedTasks.length} tasks to not started in Notion`,
+        "ClickUp to Notion",
+        "success"
     );
     await Promise.all(
         stillAssignedTasks.map((task) => {
             updateTasksToNotStarted(task);
         })
     );
-    console.log(`${INTEGRATION_LOG_PREFIX} Done`);
+    if (stillAssignedTasks.length !== 0) {
+        await log(
+            `${stillAssignedTasks.length} tasks updated to not started in Notion`,
+            "ClickUp to Notion",
+            "success",
+            true
+        );
+    }
 }
 
 async function updateTasksToNotStarted(notionTask: NotionTask): Promise<void> {
