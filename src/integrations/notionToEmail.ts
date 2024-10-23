@@ -16,7 +16,7 @@ import { bot } from "../clients/telegram/bot";
 import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[Notion to Email]";
 
-export async function notionToEmail() {
+export async function notionToEmail(manualTrigger: boolean = false) {
     const tasks: NotionTask[] = await getTasksByDueDate(new Date());
     const emailTasks = tasks.map((task) => {
         return {
@@ -29,7 +29,12 @@ export async function notionToEmail() {
         } as Email;
     });
     if (emailTasks.length === 0) {
-        await log(`No tasks to send`, "Notion to Email", "success");
+        await log(
+            `No tasks to send`,
+            "Notion to Email",
+            "success",
+            manualTrigger
+        );
         return;
     }
     const oauth2Client = await getOAuth2Client(

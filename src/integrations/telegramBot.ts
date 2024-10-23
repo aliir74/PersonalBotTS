@@ -6,7 +6,7 @@ import { notionToEmail } from "./notionToEmail";
 import { log } from "../clients/logger";
 
 bot.command("status_trains", async (ctx) => {
-    await log("[BOT] /status_trains", "Telegram Bot", "success");
+    await log("/status_trains", "Telegram Bot", "success");
     if (
         ctx.message?.chat.id !== TELEGRAM_GROUP_ID &&
         ctx.message?.chat.id !== MY_TELEGRAM_USER_ID
@@ -29,13 +29,13 @@ bot.command("status_trains", async (ctx) => {
 });
 
 bot.command("clickup_to_notion", async (ctx) => {
-    await log("[BOT] /clickup_to_notion", "Telegram Bot", "success");
+    await log("/clickup_to_notion", "Telegram Bot", "success");
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
     const message = await ctx.reply("Wait a minute...");
     try {
-        await clickupToNotion();
+        await clickupToNotion(true);
     } catch (error) {
         await log((error as Error).message, "ClickUp to Notion", "error", true);
     }
@@ -43,13 +43,13 @@ bot.command("clickup_to_notion", async (ctx) => {
 });
 
 bot.command("notion_to_email", async (ctx) => {
-    await log("[BOT] /notion_to_email", "Telegram Bot", "success");
+    await log("/notion_to_email", "Telegram Bot", "success");
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
     const message = await ctx.reply("Wait a minute...");
     try {
-        await notionToEmail();
+        await notionToEmail(true);
     } catch (error) {
         await log((error as Error).message, "Notion to Email", "error", true);
     }

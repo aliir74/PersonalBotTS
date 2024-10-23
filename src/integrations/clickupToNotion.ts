@@ -12,7 +12,7 @@ import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
 
-export async function clickupToNotion() {
+export async function clickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await getMyTasksFromClickUp();
     const notionTasks: NotionTask[] = await getNotionTasks(
         NOTION_WORKLOG_DATABASE_ID
@@ -56,6 +56,13 @@ export async function clickupToNotion() {
             "success",
             true
         );
+    } else if (manualTrigger) {
+        await log(
+            `No new tasks created in Notion`,
+            "ClickUp to Notion",
+            "success",
+            true
+        );
     }
 
     const stillAssignedTasks: NotionTask[] =
@@ -73,6 +80,13 @@ export async function clickupToNotion() {
     if (stillAssignedTasks.length !== 0) {
         await log(
             `${stillAssignedTasks.length} tasks updated to not started in Notion`,
+            "ClickUp to Notion",
+            "success",
+            true
+        );
+    } else if (manualTrigger) {
+        await log(
+            `No tasks updated to not started in Notion`,
             "ClickUp to Notion",
             "success",
             true
