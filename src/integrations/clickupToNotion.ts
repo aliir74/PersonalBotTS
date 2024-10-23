@@ -104,6 +104,19 @@ async function updateNotionTasksFromClickUp(task: {
     if (!task.notionTask.id) {
         return;
     }
+    await notionClient.comments.create({
+        parent: {
+            page_id: task.notionTask.id
+        },
+        rich_text: [
+            {
+                type: "text",
+                text: {
+                    content: `Brought back to Not_Started at ${new Date().toLocaleString()}`
+                }
+            }
+        ]
+    });
     await notionClient.pages.update({
         page_id: task.notionTask.id,
         properties: {
@@ -166,6 +179,19 @@ async function createNotionTask(task: NotionTask): Promise<void> {
         ]
     };
     const response = await notionClient.pages.create(newPage);
+    await notionClient.comments.create({
+        parent: {
+            page_id: response.id
+        },
+        rich_text: [
+            {
+                type: "text",
+                text: {
+                    content: `Created from ClickUp at ${new Date().toLocaleString()}`
+                }
+            }
+        ]
+    });
 }
 
 function findNotAutomatedTasks(
