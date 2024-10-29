@@ -25,6 +25,7 @@ export type WorklogNotionProperties = {
     link: string;
 };
 
+
 export function convertNotionResponseToWorklogNotionProperties(
     params: Record<string, any>
 ): WorklogNotionProperties {

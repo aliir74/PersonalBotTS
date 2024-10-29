@@ -9,8 +9,9 @@ import {
 } from "../environments";
 import { retryDecorator } from "ts-retry-promise";
 
-import { getPersonalTasksByDueDate } from "../clients/notion/functions";
-import { NotionTask } from "../clients/notion/types/common";
+import { getPersonalTasksByDueDate } from "../clients/notion/personal_dashboard/functions";
+import { AUTOMATED_PROPERTY } from "../clients/notion/personal_dashboard/types";
+import { NotionTask } from "../clients/notion/types";
 import { updateTasksToAutomated } from "../clients/notion/functions";
 import { log } from "../clients/logger";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
@@ -62,7 +63,10 @@ export async function notionToEmail(manualTrigger: boolean = false) {
         "Notion to Email",
         "success"
     );
-    await retryDecorator(updateTasksToAutomated, DEFAULT_RETRY_CONFIG)(tasks);
+    await retryDecorator(updateTasksToAutomated, DEFAULT_RETRY_CONFIG)(
+        tasks,
+        AUTOMATED_PROPERTY
+    );
     await log(
         `${tasks.length} tasks updated to automated in Notion`,
         "Notion to Email",

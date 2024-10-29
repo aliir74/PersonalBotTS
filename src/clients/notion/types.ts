@@ -2,11 +2,11 @@ import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints
 import {
     convertNotionResponseToPersonalNotionProperties,
     PersonalNotionProperties
-} from "./personal_database";
+} from "./personal_dashboard/types";
 import {
-    convertNotionResponseToWorklogNotionProperties,
-    WorklogNotionProperties
-} from "./worklog_database";
+    WorklogNotionProperties,
+    convertNotionResponseToWorklogNotionProperties
+} from "./worklog_dashboard/types";
 
 export type NotionTask = {
     id?: string;

@@ -7,16 +7,16 @@ import { getMyTasksFromClickUp } from "../clients/clickup/functions";
 import {
     isPersonalNotionProperties,
     NotionTask
-} from "../clients/notion/types/common";
-import { WorklogTaskStatus } from "../clients/notion/types/worklog_database";
-import { getWorkLogNotionTasks } from "../clients/notion/functions";
+} from "../clients/notion/types";
+import { WorklogTaskStatus } from "../clients/notion/worklog_dashboard/types";
+import { getWorkLogNotionTasks } from "../clients/notion/worklog_dashboard/functions";
 import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
 import { retryDecorator, retry } from "ts-retry-promise";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
-import { WorklogTaskType } from "../clients/notion/types/worklog_database";
+import { WorklogTaskType } from "../clients/notion/worklog_dashboard/types";
 
 export async function clickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await retryDecorator(

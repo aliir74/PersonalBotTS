@@ -1,3 +1,9 @@
+export const DUE_DATE_PROPERTY = "Due";
+export const STATUS_PROPERTY = "Status";
+export const PRIORITY_PROPERTY = "Priority";
+export const AUTOMATED_PROPERTY = "Automated";
+export const LINK_PROPERTY = "Link";
+
 export enum PersonalTaskStatus {
     DONE = "Done",
     IN_PROGRESS = "In progress",
