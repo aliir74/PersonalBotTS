@@ -26,6 +26,7 @@
     "googleapis": "^144.0.0",
     "grammy": "^1.30.0",
     "kavenegar": "^1.1.4",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "ts-retry-promise": "^0.8.1"
   }
 }

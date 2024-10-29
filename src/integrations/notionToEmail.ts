@@ -8,16 +8,21 @@ import {
     GOOGLE_SUBJECT,
     MY_TELEGRAM_USER_ID
 } from "../environments";
+import { retryDecorator } from "ts-retry-promise";
 
 import { getTasksByDueDate } from "../clients/notion/functions";
 import { NotionTask } from "../clients/notion/types";
 import { updateTasksToAutomated } from "../clients/notion/functions";
 import { bot } from "../clients/telegram/bot";
 import { log } from "../clients/logger";
+import { DEFAULT_RETRY_CONFIG } from "../consts";
 const INTEGRATION_LOG_PREFIX = "[Notion to Email]";
 
 export async function notionToEmail(manualTrigger: boolean = false) {
-    const tasks: NotionTask[] = await getTasksByDueDate(new Date());
+    const tasks: NotionTask[] = await retryDecorator(
+        getTasksByDueDate,
+        DEFAULT_RETRY_CONFIG
+    )(new Date());
     const emailTasks = tasks.map((task) => {
         return {
             to: GOOGLE_EMAIL,
@@ -63,7 +68,7 @@ export async function notionToEmail(manualTrigger: boolean = false) {
         "Notion to Email",
         "success"
     );
-    await updateTasksToAutomated(tasks);
+    await retryDecorator(updateTasksToAutomated, DEFAULT_RETRY_CONFIG)(tasks);
     await log(
         `${tasks.length} tasks updated to automated in Notion`,
         "Notion to Email",

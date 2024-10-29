@@ -10,13 +10,19 @@ import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
+import { retryDecorator } from "ts-retry-promise";
+import { DEFAULT_RETRY_CONFIG } from "../consts";
 const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
 
 export async function clickupToNotion(manualTrigger: boolean = false) {
-    const clickupTasks: ClickUpTask[] = await getMyTasksFromClickUp();
-    const notionTasks: NotionTask[] = await getNotionTasks(
-        NOTION_WORKLOG_DATABASE_ID
-    );
+    const clickupTasks: ClickUpTask[] = await retryDecorator(
+        getMyTasksFromClickUp,
+        DEFAULT_RETRY_CONFIG
+    )();
+    const notionTasks: NotionTask[] = await retryDecorator(
+        getNotionTasks,
+        DEFAULT_RETRY_CONFIG
+    )(NOTION_WORKLOG_DATABASE_ID);
     await log(
         `${notionTasks.length} tasks from Notion`,
         "ClickUp to Notion",
@@ -44,9 +50,12 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         "ClickUp to Notion",
         "success"
     );
-    await Promise.all(
-        newNotionTasks.map((task) => {
-            createNotionTask(task);
+    await retryDecorator(
+        Promise.all,
+        DEFAULT_RETRY_CONFIG
+    )(
+        newNotionTasks.map(async (task) => {
+            await createNotionTask(task);
         })
     );
     if (newNotionTasks.length !== 0) {
@@ -74,9 +83,12 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         "ClickUp to Notion",
         "success"
     );
-    await Promise.all(
-        stillAssignedTasks.map((task) => {
-            updateNotionTasksFromClickUp(task);
+    await retryDecorator(
+        Promise.all,
+        DEFAULT_RETRY_CONFIG
+    )(
+        stillAssignedTasks.map(async (task) => {
+            await updateNotionTasksFromClickUp(task);
         })
     );
     if (stillAssignedTasks.length !== 0) {
