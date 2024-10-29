@@ -4,10 +4,7 @@ import {
     CLICKUP_LIST_ID,
     CLICKUP_USER_ID
 } from "../../environments";
-import {
-    ClickUpResponse,
-    ClickUpTask
-} from "./types";
+import { ClickUpResponse, ClickUpTask } from "./types";
 
 export async function getMyTasksFromClickUp(
     listId: number = CLICKUP_LIST_ID,
@@ -21,6 +18,7 @@ export async function getMyTasksFromClickUp(
             archived: "false",
             page: page.toString(),
             include_closed: "false",
+            subtasks: "true",
             "assignees[]": userId.toString()
         }).toString();
         const response = await axios.get<ClickUpResponse>(
