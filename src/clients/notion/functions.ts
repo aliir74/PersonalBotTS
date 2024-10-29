@@ -1,15 +1,12 @@
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { notionClient } from "./index";
 import {
-    NOTION_DATABASE_ID,
+    NOTION_PERSONAL_DATABASE_ID,
     NOTION_WORKLOG_DATABASE_ID
 } from "../../environments";
-import {
-    convertToNotionTask,
-    NotionTask,
-    TaskStatus,
-    DUE_DATE_PROPERTY
-} from "./types";
+import { convertNotionResponseToTask, NotionTask } from "./types/common";
+import { PersonalTaskStatus } from "./types/personal_database";
+import { WorklogTaskStatus } from "./types/worklog_database";
 
 export async function updateTasksToAutomated(tasks: NotionTask[]) {
     await Promise.all(
@@ -25,14 +22,14 @@ export async function updateTasksToAutomated(tasks: NotionTask[]) {
         })
     );
 }
-export async function getTasksByDueDate(
+export async function getPersonalTasksByDueDate(
     dueDate: Date,
     filterAutomated: boolean = true
 ): Promise<NotionTask[]> {
     const date = dueDate.toISOString().split("T")[0];
     const filters: any[] = [
         {
-            property: DUE_DATE_PROPERTY,
+            property: "due",
             date: {
                 equals: date
             }
@@ -40,7 +37,7 @@ export async function getTasksByDueDate(
         {
             property: "Status",
             status: {
-                does_not_equal: TaskStatus.DONE
+                does_not_equal: PersonalTaskStatus.DONE
             }
         }
     ];
@@ -53,25 +50,26 @@ export async function getTasksByDueDate(
         });
     }
     const response = await notionClient.databases.query({
-        database_id: NOTION_DATABASE_ID,
+        database_id: NOTION_PERSONAL_DATABASE_ID,
         filter: {
             and: filters
         }
     });
     return response.results.map((result) => {
-        return convertToNotionTask(result as DatabaseObjectResponse);
+        return convertNotionResponseToTask(
+            result as DatabaseObjectResponse,
+            true
+        );
     });
 }
 
-export async function getNotionTasks(
-    databaseId: string
-): Promise<NotionTask[]> {
+export async function getWorkLogNotionTasks(): Promise<NotionTask[]> {
     const filters: any[] = [];
     const statuses = [
-        TaskStatus.DONE,
-        TaskStatus.IN_PROGRESS,
-        TaskStatus.NOT_STARTED,
-        TaskStatus.BLOCKED
+        WorklogTaskStatus.DONE,
+        WorklogTaskStatus.IN_PROGRESS,
+        WorklogTaskStatus.NOT_STARTED,
+        WorklogTaskStatus.BLOCKED
     ];
     statuses.forEach(async (status) => {
         filters.push({
@@ -85,7 +83,7 @@ export async function getNotionTasks(
         .toISOString()
         .split("T")[0];
     const response = await notionClient.databases.query({
-        database_id: databaseId,
+        database_id: NOTION_WORKLOG_DATABASE_ID,
         filter: {
             and: [
                 {
@@ -111,6 +109,9 @@ export async function getNotionTasks(
         }
     });
     return response.results.map((result) => {
-        return convertToNotionTask(result as DatabaseObjectResponse);
+        return convertNotionResponseToTask(
+            result as DatabaseObjectResponse,
+            false
+        );
     });
 }

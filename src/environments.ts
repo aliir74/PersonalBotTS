@@ -6,7 +6,8 @@ dotenv.config({ path: path.join(__dirname, "..", ".env") });
 export const NODE_ENV = process.env.NODE_ENV ?? "production";
 
 export const NOTION_INTEGRATION_TOKEN = process.env.NOTION_INTEGRATION_TOKEN;
-export const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID ?? "";
+export const NOTION_PERSONAL_DATABASE_ID =
+    process.env.NOTION_PERSONAL_DATABASE_ID ?? "";
 export const NOTION_WORKLOG_DATABASE_ID =
     process.env.NOTION_WORKLOG_DATABASE_ID ?? "";
 

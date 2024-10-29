@@ -4,15 +4,16 @@ import {
 } from "../environments";
 
 import { getMyTasksFromClickUp } from "../clients/clickup/functions";
-import { NotionTask, TaskStatus, TaskType } from "../clients/notion/types";
-import { getNotionTasks } from "../clients/notion/functions";
+import { NotionTask } from "../clients/notion/types/common";
+import { WorklogTaskStatus } from "../clients/notion/types/worklog_database";
+import { getWorkLogNotionTasks } from "../clients/notion/functions";
 import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
 import { retryDecorator } from "ts-retry-promise";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
-const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
+import { WorklogTaskType } from "../clients/notion/types/worklog_database";
 
 export async function clickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await retryDecorator(
@@ -20,9 +21,9 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         DEFAULT_RETRY_CONFIG
     )();
     const notionTasks: NotionTask[] = await retryDecorator(
-        getNotionTasks,
+        getWorkLogNotionTasks,
         DEFAULT_RETRY_CONFIG
-    )(NOTION_WORKLOG_DATABASE_ID);
+    )();
     await log(
         `${notionTasks.length} tasks from Notion`,
         "ClickUp to Notion",
@@ -133,7 +134,7 @@ async function updateNotionTasksFromClickUp(task: {
         properties: {
             Status: {
                 status: {
-                    name: TaskStatus.NOT_STARTED
+                    name: WorklogTaskStatus.NOT_STARTED
                 }
             },
             Type: {
@@ -156,7 +157,7 @@ async function createNotionTask(task: NotionTask): Promise<void> {
             Name: {
                 title: [
                     {
-                        text: { content: task.properties.taskName }
+                        text: { content: task.properties.name }
                     }
                 ]
             },
@@ -173,7 +174,10 @@ async function createNotionTask(task: NotionTask): Promise<void> {
             },
             Type: {
                 status: {
-                    name: task.properties.type ?? TaskType.DEVELOPMENT
+                    name:
+                        "type" in task.properties
+                            ? task.properties.type
+                            : WorklogTaskType.DEVELOPMENT
                 }
             }
         },
@@ -221,7 +225,7 @@ function findStillAssignedTasksButDoneInNotion(
     notionTasks: NotionTask[]
 ): { notionTask: NotionTask; clickupTask: ClickUpTask }[] {
     return notionTasks
-        .filter((task) => task.properties.status === TaskStatus.DONE)
+        .filter((task) => task.properties.status === WorklogTaskStatus.DONE)
         .map((notionTask) => {
             const relatedClickupTask = clickupTasks.find(
                 (clickupTask) => notionTask.properties.link === clickupTask.url
@@ -243,34 +247,38 @@ function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
         createdTime: new Date(),
         content: task.description,
         properties: {
-            taskName: task.name,
-            status: TaskStatus.NOT_STARTED,
+            name: task.name,
+            status: WorklogTaskStatus.NOT_STARTED,
             link: task.url,
             automated: true,
-            type: convertClickUpStatusToTaskType(task.status)
+            type: convertClickUpStatusToTaskType(task.status),
+            priority: task.priority?.priority === "urgent",
+            date: new Date().toISOString().split("T")[0]
         }
     };
 }
 
-function convertClickUpStatusToTaskType(status: ClickUpStatus): TaskType {
+function convertClickUpStatusToTaskType(
+    status: ClickUpStatus
+): WorklogTaskType {
     switch (status.status) {
         case "ready for analysis":
-            return TaskType.ANALYSIS;
+            return WorklogTaskType.ANALYSIS;
         case "in analysis":
-            return TaskType.ANALYSIS;
+            return WorklogTaskType.ANALYSIS;
         case "ready for development":
-            return TaskType.DEVELOPMENT;
+            return WorklogTaskType.DEVELOPMENT;
         case "in development":
-            return TaskType.DEVELOPMENT;
+            return WorklogTaskType.DEVELOPMENT;
         case "review+":
-            return TaskType.REVIEW;
+            return WorklogTaskType.REVIEW;
         case "verification+":
-            return TaskType.VERIFY;
+            return WorklogTaskType.VERIFY;
         case "ready to deploy":
-            return TaskType.DEPLOY;
+            return WorklogTaskType.DEPLOY;
         case "deployed":
-            return TaskType.DEPLOY;
+            return WorklogTaskType.DEPLOY;
         default:
-            return TaskType.DEVELOPMENT;
+            return WorklogTaskType.DEVELOPMENT;
     }
 }

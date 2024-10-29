@@ -9,25 +9,22 @@ import {
 } from "../environments";
 import { retryDecorator } from "ts-retry-promise";
 
-import { getTasksByDueDate } from "../clients/notion/functions";
-import { NotionTask } from "../clients/notion/types";
+import { getPersonalTasksByDueDate } from "../clients/notion/functions";
+import { NotionTask } from "../clients/notion/types/common";
 import { updateTasksToAutomated } from "../clients/notion/functions";
 import { log } from "../clients/logger";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
 
 export async function notionToEmail(manualTrigger: boolean = false) {
     const tasks: NotionTask[] = await retryDecorator(
-        getTasksByDueDate,
+        getPersonalTasksByDueDate,
         DEFAULT_RETRY_CONFIG
     )(new Date());
     const emailTasks = tasks.map((task) => {
         return {
             to: GOOGLE_EMAIL,
             subject: GOOGLE_SUBJECT,
-            body:
-                task.properties.taskName +
-                " \n !" +
-                task.properties.priority?.toLowerCase()
+            body: task.properties.name + " \n !" + task.properties.priority
         } as Email;
     });
     if (emailTasks.length === 0) {

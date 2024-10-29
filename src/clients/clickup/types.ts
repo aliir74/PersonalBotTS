@@ -28,7 +28,7 @@ export interface ClickUpStatus {
 }
 
 export interface ClickUpPriority {
-    priority: number;
+    priority: "urgent" | "high" | "medium" | "low";
     color: string;
 }
 
