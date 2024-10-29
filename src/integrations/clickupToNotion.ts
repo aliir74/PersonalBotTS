@@ -11,7 +11,7 @@ import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
-import { retryDecorator } from "ts-retry-promise";
+import { retryDecorator, retry } from "ts-retry-promise";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
 import { WorklogTaskType } from "../clients/notion/types/worklog_database";
 
@@ -51,14 +51,16 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         "ClickUp to Notion",
         "success"
     );
-    await retryDecorator(
-        Promise.all,
+    await retry(
+        () =>
+            Promise.all(
+                newNotionTasks.map(async (task) => {
+                    await createNotionTask(task);
+                })
+            ),
         DEFAULT_RETRY_CONFIG
-    )(
-        newNotionTasks.map(async (task) => {
-            await createNotionTask(task);
-        })
     );
+
     if (newNotionTasks.length !== 0) {
         await log(
             `${newNotionTasks.length} new tasks created in Notion`,
@@ -84,13 +86,14 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         "ClickUp to Notion",
         "success"
     );
-    await retryDecorator(
-        Promise.all,
+    await retry(
+        () =>
+            Promise.all(
+                stillAssignedTasks.map(async (task) => {
+                    await updateNotionTasksFromClickUp(task);
+                })
+            ),
         DEFAULT_RETRY_CONFIG
-    )(
-        stillAssignedTasks.map(async (task) => {
-            await updateNotionTasksFromClickUp(task);
-        })
     );
     if (stillAssignedTasks.length !== 0) {
         await log(
