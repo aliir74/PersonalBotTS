@@ -4,7 +4,10 @@ import {
 } from "../environments";
 
 import { getMyTasksFromClickUp } from "../clients/clickup/functions";
-import { NotionTask } from "../clients/notion/types/common";
+import {
+    isPersonalNotionProperties,
+    NotionTask
+} from "../clients/notion/types/common";
 import { WorklogTaskStatus } from "../clients/notion/types/worklog_database";
 import { getWorkLogNotionTasks } from "../clients/notion/functions";
 import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
@@ -152,6 +155,9 @@ async function updateNotionTasksFromClickUp(task: {
 }
 
 async function createNotionTask(task: NotionTask): Promise<void> {
+    if (isPersonalNotionProperties(task.properties)) {
+        return;
+    }
     const newPage: CreatePageParameters = {
         parent: {
             database_id: NOTION_WORKLOG_DATABASE_ID
@@ -175,12 +181,12 @@ async function createNotionTask(task: NotionTask): Promise<void> {
             Automated: {
                 checkbox: task.properties.automated
             },
+            Priority: {
+                checkbox: task.properties.priority
+            },
             Type: {
                 status: {
-                    name:
-                        "type" in task.properties
-                            ? task.properties.type
-                            : WorklogTaskType.DEVELOPMENT
+                    name: task.properties.type
                 }
             }
         },
@@ -250,6 +256,7 @@ function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
         createdTime: new Date(),
         content: task.description,
         properties: {
+            dashboard: "Worklog",
             name: task.name,
             status: WorklogTaskStatus.NOT_STARTED,
             link: task.url,

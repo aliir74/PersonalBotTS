@@ -12,6 +12,7 @@ export enum PersonalTaskPriority {
 }
 
 export type PersonalNotionProperties = {
+    dashboard: "Personal";
     completedOn?: boolean;
     name: string;
     status: PersonalTaskStatus;
@@ -25,8 +26,9 @@ export function convertNotionResponseToPersonalNotionProperties(
     params: Record<string, any>
 ): PersonalNotionProperties {
     return {
+        dashboard: "Personal",
         completedOn: params["Completed on"]?.date,
-        name: params["Name"]?.title[0]?.text?.content,
+        name: params["Task name"]?.title[0]?.text?.content,
         status: params.Status?.status?.name,
         due: params.Due?.date?.start,
         priority: params.Priority?.select?.name ?? PersonalTaskPriority.LOW,

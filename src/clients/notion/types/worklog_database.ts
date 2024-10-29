@@ -14,6 +14,7 @@ export enum WorklogTaskStatus {
 }
 
 export type WorklogNotionProperties = {
+    dashboard: "Worklog";
     name: string;
     status: WorklogTaskStatus;
     date: string;
@@ -28,7 +29,8 @@ export function convertNotionResponseToWorklogNotionProperties(
     params: Record<string, any>
 ): WorklogNotionProperties {
     return {
-        name: params["Task name"]?.title[0]?.text?.content,
+        dashboard: "Worklog",
+        name: params.Name?.title[0]?.text?.content,
         status: params.Status?.status?.name,
         date: params.Date?.date?.start,
         priority: params.Priority?.checkbox,

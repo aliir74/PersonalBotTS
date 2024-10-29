@@ -43,3 +43,9 @@ export function convertNotionResponseToTask(
             : convertNotionResponseToWorklogNotionProperties(params.properties)
     };
 }
+
+export function isPersonalNotionProperties(
+    properties: PersonalNotionProperties | WorklogNotionProperties
+): properties is PersonalNotionProperties {
+    return properties.dashboard === "Personal";
+}
