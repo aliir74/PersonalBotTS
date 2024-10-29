@@ -12,7 +12,6 @@ import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
 const INTEGRATION_LOG_PREFIX = "[ClickUp to Notion]";
 
-// TODO: Some tasks are not being updated in Notion
 export async function clickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await getMyTasksFromClickUp();
     const notionTasks: NotionTask[] = await getNotionTasks(
@@ -65,7 +64,7 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
             true
         );
     }
-
+    // console.log(clickupTasks);
     const stillAssignedTasks: {
         notionTask: NotionTask;
         clickupTask: ClickUpTask;

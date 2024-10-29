@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:latest
           file: ./Dockerfile
 
   deploy:
@@ -46,8 +46,8 @@ jobs:
           username: ${{ vars.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:${{ github.sha }}
+            docker system prune -f --all
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:latest
 
             if [ ! -d "personal-bot" ]; then
                 mkdir personal-bot
@@ -60,4 +60,4 @@ jobs:
             echo "${{ secrets.ENVS }}" >> .env
             docker stop personal-bot
             docker rm personal-bot
-            docker run -d --restart always --env-file .env --name personal-bot ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:${{ github.sha }}
+            docker run -d --restart always --env-file .env --name personal-bot ${{ secrets.DOCKERHUB_USERNAME }}/personal-bot:latest
