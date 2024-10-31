@@ -5,6 +5,7 @@ import { notionClient } from "../index";
 import { NOTION_WORKLOG_DATABASE_ID } from "../../../environments";
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { convertNotionResponseToTask } from "../types";
+import { log } from "../../logger";
 
 export async function getWorkLogNotionTasks(): Promise<NotionTask[]> {
     const filters: any[] = [];
@@ -51,10 +52,16 @@ export async function getWorkLogNotionTasks(): Promise<NotionTask[]> {
             ]
         }
     });
-    return response.results.map((result) => {
+    const notionTasks: NotionTask[] = response.results.map((result) => {
         return convertNotionResponseToTask(
             result as DatabaseObjectResponse,
             false
         );
     });
+    await log(
+        `${notionTasks.length} tasks from Notion`,
+        "Get Worklog Notion Tasks",
+        "success"
+    );
+    return notionTasks;
 }

@@ -23,55 +23,27 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         getMyTasksFromClickUp,
         DEFAULT_RETRY_CONFIG
     )();
-    await log(
-        `${clickupTasks.length} tasks from ClickUp`,
-        "ClickUp to Notion",
-        "success"
-    );
+
     const notionTasks: NotionTask[] = await retryDecorator(
         getWorkLogNotionTasks,
         DEFAULT_RETRY_CONFIG
     )();
-    await log(
-        `${notionTasks.length} tasks from Notion`,
-        "ClickUp to Notion",
-        "success"
-    );
-    const notAutomatedTasks: ClickUpTask[] = findNotAutomatedTasks(
+
+    const notAutomatedTasks: ClickUpTask[] = await findNotAutomatedTasks(
         clickupTasks,
         notionTasks
     );
-    await log(
-        `${notAutomatedTasks.length} not automated tasks out of ${clickupTasks.length}`,
-        "ClickUp to Notion",
-        "success"
-    );
+
     const newNotionTasks: NotionTask[] = notAutomatedTasks.map((task) => {
         return convertClickUpToNotionTask(task);
     });
-    await log(
-        `Creating ${newNotionTasks.length} new tasks in Notion`,
-        "ClickUp to Notion",
-        "success"
-    );
-    await retry(
-        () =>
-            Promise.all(
-                newNotionTasks.map(async (task) => {
-                    await createNotionTask(task);
-                })
-            ),
-        DEFAULT_RETRY_CONFIG
-    );
 
-    if (newNotionTasks.length !== 0) {
-        await log(
-            `${newNotionTasks.length} new tasks created in Notion`,
-            "ClickUp to Notion",
-            "success",
-            true
-        );
-    } else if (manualTrigger) {
+    await retryDecorator(
+        createNotionTasks,
+        DEFAULT_RETRY_CONFIG
+    )(newNotionTasks);
+
+    if (manualTrigger && newNotionTasks.length === 0) {
         await log(
             `No new tasks created in Notion`,
             "ClickUp to Notion",
@@ -83,161 +55,175 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         notionTask: NotionTask;
         clickupTask: ClickUpTask;
     }[] = findStillAssignedTasksButDoneInNotion(clickupTasks, notionTasks);
-    await log(
-        `Updating ${stillAssignedTasks.length} tasks to not started in Notion`,
-        "ClickUp to Notion",
-        "success"
-    );
-    await retry(
-        () =>
-            Promise.all(
-                stillAssignedTasks.map(async (task) => {
-                    await updateNotionTasksFromClickUp(task);
-                })
-            ),
+    await retryDecorator(
+        updateNotionTasksFromClickUp,
         DEFAULT_RETRY_CONFIG
-    );
-    if (stillAssignedTasks.length !== 0) {
+    )(stillAssignedTasks);
+    if (manualTrigger && stillAssignedTasks.length === 0) {
         await log(
             `${stillAssignedTasks.length} tasks updated to not started in Notion`,
             "ClickUp to Notion",
             "success",
             true
         );
-    } else if (manualTrigger) {
-        await log(
-            `No tasks updated to not started in Notion`,
-            "ClickUp to Notion",
-            "success",
-            true
-        );
     }
 }
 
-async function updateNotionTasksFromClickUp(task: {
-    notionTask: NotionTask;
-    clickupTask: ClickUpTask;
-}): Promise<void> {
-    if (!task.notionTask.id) {
-        return;
-    }
-    const newStatus = WorklogTaskStatus.NOT_STARTED;
-    const newType = convertClickUpStatusToTaskType(task.clickupTask.status);
-    const today = new Date().toISOString().split("T")[0];
-    await notionClient.comments.create({
-        parent: {
-            page_id: task.notionTask.id
-        },
-        rich_text: [
-            {
-                type: "text",
-                text: {
-                    content: `Brought back to ${newStatus} at ${new Date().toLocaleString()} for ${newType}`
-                }
+async function updateNotionTasksFromClickUp(
+    tasks: {
+        notionTask: NotionTask;
+        clickupTask: ClickUpTask;
+    }[]
+): Promise<void> {
+    await Promise.all(
+        tasks.map(async (task) => {
+            if (!task.notionTask.id) {
+                return;
             }
-        ]
-    });
-    await notionClient.pages.update({
-        page_id: task.notionTask.id,
-        properties: {
-            Status: {
-                status: {
-                    name: newStatus
-                }
-            },
-            Type: {
-                status: {
-                    name: newType
-                }
-            },
-            Date: {
-                date: {
-                    start: today
-                }
-            }
-        }
-    });
-}
-
-async function createNotionTask(task: NotionTask): Promise<void> {
-    if (isPersonalNotionProperties(task.properties)) {
-        return;
-    }
-    const today = new Date().toISOString().split("T")[0];
-    const newPage: CreatePageParameters = {
-        parent: {
-            database_id: NOTION_WORKLOG_DATABASE_ID
-        },
-        properties: {
-            Name: {
-                title: [
+            const newStatus = WorklogTaskStatus.NOT_STARTED;
+            const newType = convertClickUpStatusToTaskType(
+                task.clickupTask.status
+            );
+            const today = new Date().toISOString().split("T")[0];
+            await notionClient.comments.create({
+                parent: {
+                    page_id: task.notionTask.id
+                },
+                rich_text: [
                     {
-                        text: { content: task.properties.name }
+                        type: "text",
+                        text: {
+                            content: `Brought back to ${newStatus} at ${new Date().toLocaleString()} for ${newType}`
+                        }
                     }
                 ]
-            },
-            Status: {
-                status: {
-                    name: task.properties.status
+            });
+            await notionClient.pages.update({
+                page_id: task.notionTask.id,
+                properties: {
+                    Status: {
+                        status: {
+                            name: newStatus
+                        }
+                    },
+                    Type: {
+                        status: {
+                            name: newType
+                        }
+                    },
+                    Date: {
+                        date: {
+                            start: today
+                        }
+                    }
                 }
-            },
-            Link: {
-                url: task.properties.link ?? ""
-            },
-            Automated: {
-                checkbox: task.properties.automated
-            },
-            Priority: {
-                checkbox: task.properties.priority
-            },
-            Type: {
-                status: {
-                    name: task.properties.type
-                }
-            },
-            Date: {
-                date: {
-                    start: today
-                }
-            }
-        },
-        children: [
-            {
-                object: "block",
-                type: "paragraph",
-                paragraph: {
-                    rich_text: [
-                        { type: "text", text: { content: task.content } }
-                    ]
-                }
-            }
-        ]
-    };
-    const response = await notionClient.pages.create(newPage);
-    await notionClient.comments.create({
-        parent: {
-            page_id: response.id
-        },
-        rich_text: [
-            {
-                type: "text",
-                text: {
-                    content: `Created from ClickUp at ${new Date().toLocaleString()}`
-                }
-            }
-        ]
-    });
+            });
+        })
+    );
+    await log(
+        `${tasks.length} tasks updated to not started in Notion`,
+        "ClickUp to Notion",
+        "success"
+    );
 }
 
-function findNotAutomatedTasks(
+async function createNotionTasks(tasks: NotionTask[]): Promise<void> {
+    await Promise.all(
+        tasks.map(async (task) => {
+            if (isPersonalNotionProperties(task.properties)) {
+                return;
+            }
+            const today = new Date().toISOString().split("T")[0];
+            const newPage: CreatePageParameters = {
+                parent: {
+                    database_id: NOTION_WORKLOG_DATABASE_ID
+                },
+                properties: {
+                    Name: {
+                        title: [
+                            {
+                                text: { content: task.properties.name }
+                            }
+                        ]
+                    },
+                    Status: {
+                        status: {
+                            name: task.properties.status
+                        }
+                    },
+                    Link: {
+                        url: task.properties.link ?? ""
+                    },
+                    Automated: {
+                        checkbox: task.properties.automated
+                    },
+                    Priority: {
+                        checkbox: task.properties.priority
+                    },
+                    Type: {
+                        status: {
+                            name: task.properties.type
+                        }
+                    },
+                    Date: {
+                        date: {
+                            start: today
+                        }
+                    }
+                },
+                children: [
+                    {
+                        object: "block",
+                        type: "paragraph",
+                        paragraph: {
+                            rich_text: [
+                                {
+                                    type: "text",
+                                    text: { content: task.content }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            };
+            const response = await notionClient.pages.create(newPage);
+            await notionClient.comments.create({
+                parent: {
+                    page_id: response.id
+                },
+                rich_text: [
+                    {
+                        type: "text",
+                        text: {
+                            content: `Created from ClickUp at ${new Date().toLocaleString()}`
+                        }
+                    }
+                ]
+            });
+        })
+    );
+    await log(
+        `${tasks.length} new tasks created in Notion`,
+        "ClickUp to Notion",
+        "success"
+    );
+}
+
+async function findNotAutomatedTasks(
     clickupTasks: ClickUpTask[],
     notionTasks: NotionTask[]
-): ClickUpTask[] {
-    return clickupTasks.filter((task) => {
+): Promise<ClickUpTask[]> {
+    const tasks = clickupTasks.filter((task) => {
         return !notionTasks.some(
             (notionTask) => notionTask.properties.link === task.url
         );
     });
+    await log(
+        `${tasks.length} not automated tasks out of ${clickupTasks.length}`,
+        "ClickUp to Notion",
+        "success"
+    );
+    return tasks;
 }
 
 function findStillAssignedTasksButDoneInNotion(

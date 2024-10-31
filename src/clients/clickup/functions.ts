@@ -5,6 +5,7 @@ import {
     CLICKUP_USER_ID
 } from "../../environments";
 import { ClickUpResponse, ClickUpTask } from "./types";
+import { log } from "../logger";
 
 export async function getMyTasksFromClickUp(
     listId: number = CLICKUP_LIST_ID,
@@ -33,5 +34,10 @@ export async function getMyTasksFromClickUp(
         page++;
         allTasks = [...allTasks, ...response.data.tasks];
     }
+    await log(
+        `${allTasks.length} tasks from ClickUp`,
+        "Get ClickUp tasks",
+        "success"
+    );
     return allTasks;
 }
