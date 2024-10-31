@@ -9,7 +9,7 @@ import {
 } from "./worklog_dashboard/types";
 
 export type NotionTask = {
-    id?: string;
+    id: string;
     createdTime?: Date;
     lastEditedTime?: Date;
     archived?: boolean;

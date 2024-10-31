@@ -23,17 +23,17 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
         getMyTasksFromClickUp,
         DEFAULT_RETRY_CONFIG
     )();
+    await log(
+        `${clickupTasks.length} tasks from ClickUp`,
+        "ClickUp to Notion",
+        "success"
+    );
     const notionTasks: NotionTask[] = await retryDecorator(
         getWorkLogNotionTasks,
         DEFAULT_RETRY_CONFIG
     )();
     await log(
         `${notionTasks.length} tasks from Notion`,
-        "ClickUp to Notion",
-        "success"
-    );
-    await log(
-        `${clickupTasks.length} tasks from ClickUp`,
         "ClickUp to Notion",
         "success"
     );
@@ -79,7 +79,6 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
             true
         );
     }
-    // console.log(clickupTasks);
     const stillAssignedTasks: {
         notionTask: NotionTask;
         clickupTask: ClickUpTask;
@@ -122,6 +121,9 @@ async function updateNotionTasksFromClickUp(task: {
     if (!task.notionTask.id) {
         return;
     }
+    const newStatus = WorklogTaskStatus.NOT_STARTED;
+    const newType = convertClickUpStatusToTaskType(task.clickupTask.status);
+    const today = new Date().toISOString().split("T")[0];
     await notionClient.comments.create({
         parent: {
             page_id: task.notionTask.id
@@ -130,7 +132,7 @@ async function updateNotionTasksFromClickUp(task: {
             {
                 type: "text",
                 text: {
-                    content: `Brought back to Not_Started at ${new Date().toLocaleString()}`
+                    content: `Brought back to ${newStatus} at ${new Date().toLocaleString()} for ${newType}`
                 }
             }
         ]
@@ -140,14 +142,17 @@ async function updateNotionTasksFromClickUp(task: {
         properties: {
             Status: {
                 status: {
-                    name: WorklogTaskStatus.NOT_STARTED
+                    name: newStatus
                 }
             },
             Type: {
                 status: {
-                    name: convertClickUpStatusToTaskType(
-                        task.clickupTask.status
-                    )
+                    name: newType
+                }
+            },
+            Date: {
+                date: {
+                    start: today
                 }
             }
         }
@@ -158,6 +163,7 @@ async function createNotionTask(task: NotionTask): Promise<void> {
     if (isPersonalNotionProperties(task.properties)) {
         return;
     }
+    const today = new Date().toISOString().split("T")[0];
     const newPage: CreatePageParameters = {
         parent: {
             database_id: NOTION_WORKLOG_DATABASE_ID
@@ -187,6 +193,11 @@ async function createNotionTask(task: NotionTask): Promise<void> {
             Type: {
                 status: {
                     name: task.properties.type
+                }
+            },
+            Date: {
+                date: {
+                    start: today
                 }
             }
         },
@@ -253,6 +264,7 @@ function findStillAssignedTasksButDoneInNotion(
 
 function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
     return {
+        id: "new",
         createdTime: new Date(),
         content: task.description,
         properties: {
