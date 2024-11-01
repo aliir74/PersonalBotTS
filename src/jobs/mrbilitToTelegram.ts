@@ -4,10 +4,9 @@ import {
     properTrainDataDisplay
 } from "../clients/mrbilit/functions";
 import { bot } from "../clients/telegram/bot";
-import { TELEGRAM_GROUP_ID } from "../environments";
 import { FilterTrain } from "../clients/mrbilit/types";
 import { log } from "../clients/logger";
-const INTEGRATION_LOG_PREFIX = "[MrBilit to Telegram]";
+
 export async function mrbilitToTelegram(
     from: number,
     to: number,
@@ -17,10 +16,10 @@ export async function mrbilitToTelegram(
     filter?: FilterTrain
 ) {
     const trainSchedule = await getTrainSchedule({
-        from: { code: from },
-        to: { code: to },
-        date: date,
-        adultCount: adultCount
+        from,
+        to,
+        date,
+        adultCount
     });
     await log(
         `${trainSchedule.Trains.length} trains found for ${date.toISOString().split("T")[0]}`,

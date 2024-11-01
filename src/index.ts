@@ -3,7 +3,14 @@ import { schedule } from "node-cron";
 import { clickupToNotion } from "./jobs/clickupToNotion";
 import { mrbilitToTelegram } from "./jobs/mrbilitToTelegram";
 import { FilterTrain } from "./clients/mrbilit/types";
-import { MY_TELEGRAM_USER_ID, TELEGRAM_GROUP_ID } from "./environments";
+import {
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI,
+    GOOGLE_REFRESH_TOKEN,
+    MY_TELEGRAM_USER_ID,
+    TELEGRAM_GROUP_ID
+} from "./environments";
 import { bot } from "./clients/telegram/bot";
 import "./jobs/telegramBot";
 import { log } from "./clients/logger";
@@ -32,9 +39,9 @@ schedule("*/15 * * * *", async () => {
         return;
     }
     const filterTehranToShahrud: FilterTrain = {
-        PassengerCount: 5,
+        PassengerCount: 4,
         DepartureTime: {
-            After: new Date(Date.UTC(2024, 10, 6, 14)),
+            After: new Date(Date.UTC(2024, 10, 6, 0)),
             Before: new Date(Date.UTC(2024, 10, 6, 20))
         },
         BusInclude: false,
@@ -45,7 +52,7 @@ schedule("*/15 * * * *", async () => {
             1,
             130,
             new Date(Date.UTC(2024, 10, 6)),
-            5,
+            filterTehranToShahrud.PassengerCount,
             TELEGRAM_GROUP_ID,
             filterTehranToShahrud
         );

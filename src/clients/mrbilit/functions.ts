@@ -13,8 +13,8 @@ export async function getTrainSchedule(
     trainSchedule: TrainSchedule
 ): Promise<TrainScheduleResponse> {
     const query = new URLSearchParams({
-        from: trainSchedule.from.code.toString(),
-        to: trainSchedule.to.code.toString(),
+        from: trainSchedule.from.toString(),
+        to: trainSchedule.to.toString(),
         date: trainSchedule.date.toISOString().split("T")[0],
         adultCount: trainSchedule.adultCount.toString(),
         childCount: trainSchedule.childCount?.toString() ?? "0",

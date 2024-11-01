@@ -1,6 +1,6 @@
 export type TrainSchedule = {
-    from: CityCode;
-    to: CityCode;
+    from: City;
+    to: City;
     date: Date;
     adultCount: number;
     childCount?: number;
@@ -10,14 +10,9 @@ export type TrainSchedule = {
     genderCode?: "1" | "2" | "3";
 };
 
-export type CityCode = {
-    code: number; // Tehran:1 Shahrud:130
-};
-
-export function getCityName(code: number) {
-    if (code === 1) return "Tehran";
-    if (code === 130) return "Shahrud";
-    return "Unknown";
+export enum City {
+    Tehran = 1,
+    Shahrud = 130
 }
 
 export type Corporation = {
@@ -63,13 +58,13 @@ export type Train = {
     CorporationName: string;
     DateString: string;
     DepartureTime: string;
-    From: CityCode;
+    From: City;
     FromCache: boolean;
     FromName: string;
     ID: number;
     IsForeign: boolean;
     Prices: Price[];
-    To: CityCode;
+    To: City;
     ToCache: boolean;
     ToName: string;
     Weekday: string;
