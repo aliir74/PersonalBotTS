@@ -2,7 +2,7 @@ import { notionToEmail } from "./jobs/notionToEmail";
 import { schedule } from "node-cron";
 import { clickupToNotion } from "./jobs/clickupToNotion";
 import { mrbilitToTelegram } from "./jobs/mrbilitToTelegram";
-import { FilterTrain } from "./clients/mrbilit/types";
+import { City, FilterTrain } from "./clients/mrbilit/types";
 import {
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -35,9 +35,7 @@ schedule("*/5 8-23 * * 1-5", async () => {
 
 // Every 15 minutes, Check trains
 schedule("*/15 * * * *", async () => {
-    if (new Date() > new Date(Date.UTC(2024, 10, 8))) {
-        return;
-    }
+    // Tehran to Shahrud
     const filterTehranToShahrud: FilterTrain = {
         PassengerCount: 4,
         DepartureTime: {
@@ -49,8 +47,8 @@ schedule("*/15 * * * *", async () => {
     };
     try {
         await mrbilitToTelegram(
-            1,
-            130,
+            City.Tehran,
+            City.Shahrud,
             new Date(Date.UTC(2024, 10, 6)),
             filterTehranToShahrud.PassengerCount,
             TELEGRAM_GROUP_ID,
@@ -64,23 +62,80 @@ schedule("*/15 * * * *", async () => {
             true
         );
     }
+    //Shahrud to Tehran
     const filterShahrudToTehran: FilterTrain = {
         PassengerCount: 1,
         DepartureTime: {
-            After: new Date(Date.UTC(2024, 10, 8, 16)),
-            Before: new Date(Date.UTC(2024, 10, 8, 18))
+            After: new Date(Date.UTC(2024, 10, 8, 0)),
+            Before: new Date(Date.UTC(2024, 10, 8, 20))
         },
-        BusInclude: false,
+        BusInclude: true,
         CompartmentCapacityInclude: false
     };
     try {
         await mrbilitToTelegram(
-            130,
-            1,
+            City.Shahrud,
+            City.Tehran,
             new Date(Date.UTC(2024, 10, 8)),
-            1,
+            filterShahrudToTehran.PassengerCount,
             TELEGRAM_GROUP_ID,
             filterShahrudToTehran
+        );
+    } catch (error) {
+        await log(
+            (error as Error).message,
+            "Mrbilit to Telegram",
+            "error",
+            true
+        );
+    }
+
+    //Tehran to Mashhad
+    const filterTehranToMashhad: FilterTrain = {
+        PassengerCount: 4,
+        DepartureTime: {
+            After: new Date(Date.UTC(2024, 10, 6, 0)),
+            Before: new Date(Date.UTC(2024, 10, 6, 20))
+        },
+        BusInclude: false,
+        CompartmentCapacityInclude: true
+    };
+    try {
+        await mrbilitToTelegram(
+            City.Tehran,
+            City.Mashhad,
+            new Date(Date.UTC(2024, 10, 6)),
+            filterTehranToMashhad.PassengerCount,
+            TELEGRAM_GROUP_ID,
+            filterTehranToMashhad
+        );
+    } catch (error) {
+        await log(
+            (error as Error).message,
+            "Mrbilit to Telegram",
+            "error",
+            true
+        );
+    }
+
+    // Mashhad to Tehran
+    const filterMashhadToTehran: FilterTrain = {
+        PassengerCount: 1,
+        DepartureTime: {
+            After: new Date(Date.UTC(2024, 10, 8, 0)),
+            Before: new Date(Date.UTC(2024, 10, 8, 20))
+        },
+        BusInclude: true,
+        CompartmentCapacityInclude: false
+    };
+    try {
+        await mrbilitToTelegram(
+            City.Mashhad,
+            City.Tehran,
+            new Date(Date.UTC(2024, 10, 8)),
+            filterMashhadToTehran.PassengerCount,
+            TELEGRAM_GROUP_ID,
+            filterMashhadToTehran
         );
     } catch (error) {
         await log(
