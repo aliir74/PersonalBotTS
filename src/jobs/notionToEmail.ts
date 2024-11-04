@@ -10,7 +10,10 @@ import {
 import { retryDecorator } from "ts-retry-promise";
 
 import { getPersonalTasksByDueDate } from "../clients/notion/personal_dashboard/functions";
-import { AUTOMATED_PROPERTY } from "../clients/notion/personal_dashboard/types";
+import {
+    AUTOMATED_PROPERTY,
+    PersonalNotionProperties
+} from "../clients/notion/personal_dashboard/types";
 import { NotionTask } from "../clients/notion/types";
 import { updateTasksToAutomated } from "../clients/notion/functions";
 import { log } from "../clients/logger";
@@ -25,7 +28,9 @@ export async function notionToEmail(manualTrigger: boolean = false) {
         return {
             to: GOOGLE_EMAIL,
             subject: GOOGLE_SUBJECT,
-            body: task.properties.name + " \n !" + task.properties.priority
+            body: `${task.properties.name}:${
+                (task.properties as PersonalNotionProperties).projectName
+            } \n !${task.properties.priority}`
         } as Email;
     });
     if (emailTasks.length === 0) {

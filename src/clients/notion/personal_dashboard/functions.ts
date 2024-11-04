@@ -1,4 +1,7 @@
-import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import {
+    DatabaseObjectResponse,
+    PageObjectResponse
+} from "@notionhq/client/build/src/api-endpoints";
 import { NotionTask } from "../types";
 import { notionClient } from "../index";
 import { NOTION_PERSONAL_DATABASE_ID } from "../../../environments";
@@ -24,24 +27,37 @@ export async function getPersonalTasksByDueDate(
             }
         }
     ];
-    if (filterAutomated) {
-        filters.push({
-            property: "Automated",
-            checkbox: {
-                equals: false
-            }
-        });
-    }
+    // if (filterAutomated) {
+    //     filters.push({
+    //         property: "Automated",
+    //         checkbox: {
+    //             equals: false
+    //         }
+    //     });
+    // }
     const response = await notionClient.databases.query({
         database_id: NOTION_PERSONAL_DATABASE_ID,
         filter: {
             and: filters
         }
     });
-    return response.results.map((result) => {
-        return convertNotionResponseToTask(
-            result as DatabaseObjectResponse,
-            true
-        );
+    const tasks = await Promise.all(
+        response.results.map((result) => {
+            return convertNotionResponseToTask(
+                result as DatabaseObjectResponse,
+                true
+            );
+        })
+    );
+    console.log(tasks);
+    return tasks;
+}
+
+export async function getPersonalProject(
+    id: string
+): Promise<PageObjectResponse> {
+    const response = await notionClient.pages.retrieve({
+        page_id: id
     });
+    return response as PageObjectResponse;
 }

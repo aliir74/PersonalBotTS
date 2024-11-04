@@ -52,12 +52,14 @@ export async function getWorkLogNotionTasks(): Promise<NotionTask[]> {
             ]
         }
     });
-    const notionTasks: NotionTask[] = response.results.map((result) => {
-        return convertNotionResponseToTask(
-            result as DatabaseObjectResponse,
-            false
-        );
-    });
+    const notionTasks = await Promise.all(
+        response.results.map((result) => {
+            return convertNotionResponseToTask(
+                result as DatabaseObjectResponse,
+                false
+            );
+        })
+    );
     await log(
         `${notionTasks.length} tasks from Notion`,
         "Get Worklog Notion Tasks",

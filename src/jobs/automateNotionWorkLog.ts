@@ -55,8 +55,10 @@ async function fetchTasks(
         "Automate Notion Worklog",
         "success"
     );
-    return tasks.results.map((task) =>
-        convertNotionResponseToTask(task as DatabaseObjectResponse, false)
+    return Promise.all(
+        tasks.results.map((task) =>
+            convertNotionResponseToTask(task as DatabaseObjectResponse, false)
+        )
     );
 }
 

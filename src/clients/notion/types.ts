@@ -3,6 +3,8 @@ import {
     convertNotionResponseToPersonalNotionProperties,
     PersonalNotionProperties
 } from "./personal_dashboard/types";
+import { getPersonalProject } from "./personal_dashboard/functions";
+import { personalDashboardIdToProjectName } from "./personal_dashboard/mappings";
 import {
     WorklogNotionProperties,
     convertNotionResponseToWorklogNotionProperties
@@ -21,10 +23,22 @@ export type NotionTask = {
     properties: PersonalNotionProperties | WorklogNotionProperties;
 };
 
-export function convertNotionResponseToTask(
+export async function convertNotionResponseToTask(
     params: DatabaseObjectResponse,
     personal: boolean
-): NotionTask {
+): Promise<NotionTask> {
+    let projectName = "";
+    if (personal) {
+        const projectId = (params.properties.Project as any).relation[0].id;
+        if (projectId && personalDashboardIdToProjectName[projectId]) {
+            projectName = personalDashboardIdToProjectName[projectId];
+        } else {
+            const project = await getPersonalProject(projectId);
+            projectName = (project.properties["Project name"] as any)?.title[0]
+                ?.text?.content;
+            personalDashboardIdToProjectName[projectId] = projectName;
+        }
+    }
     return {
         id: params.id,
         createdTime: new Date(params.created_time),
@@ -39,7 +53,10 @@ export function convertNotionResponseToTask(
         url: params.url,
         content: "",
         properties: personal
-            ? convertNotionResponseToPersonalNotionProperties(params.properties)
+            ? convertNotionResponseToPersonalNotionProperties(
+                  params.properties,
+                  projectName
+              )
             : convertNotionResponseToWorklogNotionProperties(params.properties)
     };
 }

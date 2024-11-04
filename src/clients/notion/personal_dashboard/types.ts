@@ -26,10 +26,12 @@ export type PersonalNotionProperties = {
     priority: PersonalTaskPriority;
     automated: boolean;
     link: string;
+    projectName: string;
 };
 
 export function convertNotionResponseToPersonalNotionProperties(
-    params: Record<string, any>
+    params: Record<string, any>,
+    projectName: string
 ): PersonalNotionProperties {
     return {
         dashboard: "Personal",
@@ -39,6 +41,7 @@ export function convertNotionResponseToPersonalNotionProperties(
         due: params.Due?.date?.start,
         priority: params.Priority?.select?.name ?? PersonalTaskPriority.LOW,
         automated: params.Automated?.checkbox,
-        link: params.Link?.url
+        link: params.Link?.url,
+        projectName: projectName
     };
 }
