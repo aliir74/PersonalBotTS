@@ -27,14 +27,14 @@ export async function getPersonalTasksByDueDate(
             }
         }
     ];
-    // if (filterAutomated) {
-    //     filters.push({
-    //         property: "Automated",
-    //         checkbox: {
-    //             equals: false
-    //         }
-    //     });
-    // }
+    if (filterAutomated) {
+        filters.push({
+            property: "Automated",
+            checkbox: {
+                equals: false
+            }
+        });
+    }
     const response = await notionClient.databases.query({
         database_id: NOTION_PERSONAL_DATABASE_ID,
         filter: {
@@ -49,7 +49,7 @@ export async function getPersonalTasksByDueDate(
             );
         })
     );
-    console.log(tasks);
+    // console.log(tasks);
     return tasks;
 }
 
@@ -59,5 +59,6 @@ export async function getPersonalProject(
     const response = await notionClient.pages.retrieve({
         page_id: id
     });
+    // console.log(response);
     return response as PageObjectResponse;
 }
