@@ -27,6 +27,7 @@
     "grammy": "^1.30.0",
     "kavenegar": "^1.1.4",
     "node-cron": "^3.0.3",
+    "telegram": "^2.26.6",
     "ts-retry-promise": "^0.8.1"
   }
 }
