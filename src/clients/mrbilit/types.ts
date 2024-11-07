@@ -13,7 +13,8 @@ export type TrainSchedule = {
 export enum City {
     Tehran = 1,
     Shahrud = 130,
-    Mashhad = 191
+    Mashhad = 191,
+    QOM = 161
 }
 
 export type Corporation = {

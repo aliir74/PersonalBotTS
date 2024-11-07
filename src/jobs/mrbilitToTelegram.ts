@@ -9,41 +9,10 @@ import { City, FilterTrain } from "../clients/mrbilit/types";
 import { log } from "../clients/logger";
 
 export async function AbanEvent(manualTrigger: boolean = false) {
-    // Tehran to Shahrud
-    const startTripDay = new Date(Date.UTC(2024, 10, 6));
-    const startTripDayLastHour = new Date(
-        startTripDay.getTime() + 20 * 60 * 60 * 1000
-    );
     const endTripDay = new Date(Date.UTC(2024, 10, 8));
     const endTripDayLastHour = new Date(
         endTripDay.getTime() + 20 * 60 * 60 * 1000
     );
-    const filterTehranToShahrud: FilterTrain = {
-        PassengerCount: 4,
-        DepartureTime: {
-            After: startTripDay,
-            Before: startTripDayLastHour
-        },
-        BusInclude: false,
-        CompartmentCapacityInclude: true
-    };
-    try {
-        await mrbilitToTelegram(
-            City.Tehran,
-            City.Shahrud,
-            startTripDay,
-            filterTehranToShahrud.PassengerCount,
-            TELEGRAM_GROUP_ID,
-            !manualTrigger ? filterTehranToShahrud : undefined
-        );
-    } catch (error) {
-        await log(
-            (error as Error).message,
-            "Mrbilit to Telegram",
-            "error",
-            true
-        );
-    }
     //Shahrud to Tehran
     const filterShahrudToTehran: FilterTrain = {
         PassengerCount: 1,
@@ -72,34 +41,6 @@ export async function AbanEvent(manualTrigger: boolean = false) {
         );
     }
 
-    //Tehran to Mashhad
-    const filterTehranToMashhad: FilterTrain = {
-        PassengerCount: 4,
-        DepartureTime: {
-            After: startTripDay,
-            Before: startTripDayLastHour
-        },
-        BusInclude: false,
-        CompartmentCapacityInclude: true
-    };
-    try {
-        await mrbilitToTelegram(
-            City.Tehran,
-            City.Mashhad,
-            startTripDay,
-            filterTehranToMashhad.PassengerCount,
-            TELEGRAM_GROUP_ID,
-            !manualTrigger ? filterTehranToMashhad : undefined
-        );
-    } catch (error) {
-        await log(
-            (error as Error).message,
-            "Mrbilit to Telegram",
-            "error",
-            true
-        );
-    }
-
     // Mashhad to Tehran
     const filterMashhadToTehran: FilterTrain = {
         PassengerCount: 1,
@@ -118,6 +59,34 @@ export async function AbanEvent(manualTrigger: boolean = false) {
             filterMashhadToTehran.PassengerCount,
             TELEGRAM_GROUP_ID,
             !manualTrigger ? filterMashhadToTehran : undefined
+        );
+    } catch (error) {
+        await log(
+            (error as Error).message,
+            "Mrbilit to Telegram",
+            "error",
+            true
+        );
+    }
+
+    // Mashhad to Qom
+    const filterMashhadToQom: FilterTrain = {
+        PassengerCount: 1,
+        DepartureTime: {
+            After: endTripDay,
+            Before: endTripDayLastHour
+        },
+        BusInclude: true,
+        CompartmentCapacityInclude: false
+    };
+    try {
+        await mrbilitToTelegram(
+            City.Mashhad,
+            City.QOM,
+            endTripDay,
+            filterMashhadToQom.PassengerCount,
+            TELEGRAM_GROUP_ID,
+            !manualTrigger ? filterMashhadToQom : undefined
         );
     } catch (error) {
         await log(

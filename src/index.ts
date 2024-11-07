@@ -6,7 +6,7 @@ import "./jobs/telegramBot";
 import { log } from "./clients/logger";
 import { automateNotionWorkLog } from "./jobs/automateNotionWorkLog";
 // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
-notionToEmail();
+
 schedule("*/15 8-23 * * *", async () => {
     try {
         await notionToEmail();
