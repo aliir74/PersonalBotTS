@@ -62,7 +62,7 @@ bot.command("status_trains", async (ctx) => {
     }
     await log("/status_trains", "Telegram Bot", "success");
     const message = await ctx.reply("Wait a minute...");
-    await AbanEvent();
+    await AbanEvent(true);
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
 
