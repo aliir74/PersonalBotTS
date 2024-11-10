@@ -14,10 +14,10 @@ interface BotCommand {
 
 // Define available commands
 const commands: BotCommand[] = [
-    {
-        command: "status_trains",
-        description: "Check train status"
-    },
+    // {
+    //     command: "status_trains",
+    //     description: "Check train status"
+    // },
     {
         command: "clickup_to_notion",
         description: "Sync ClickUp tasks to Notion"

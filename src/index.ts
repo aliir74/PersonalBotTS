@@ -1,12 +1,11 @@
 import { notionToEmail } from "./jobs/notionToEmail";
 import { schedule } from "node-cron";
 import { clickupToNotion } from "./jobs/clickupToNotion";
-import { AbanEvent } from "./jobs/mrbilitToTelegram";
 import "./jobs/telegramBot";
 import { log } from "./clients/logger";
 import { automateNotionWorkLog } from "./jobs/automateNotionWorkLog";
-// Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 
+// Every 15 minutes, between 08:00 AM and 11:59 PM, All days
 schedule("*/15 8-23 * * *", async () => {
     try {
         await notionToEmail();
@@ -24,10 +23,6 @@ schedule("*/5 8-23 * * 1-5", async () => {
     }
 });
 
-// Every 15 minutes, Check trains
-schedule("*/15 * * * *", async () => {
-    await AbanEvent();
-});
 // Every 15 minutes, Bot active check
 schedule("0 0 * * *", async () => {
     await log("Bot is active", "Bot active check", "success", true);
