@@ -89,25 +89,52 @@ export async function getOAuth2Client(
     clientSecret: string,
     refreshToken?: string,
     redirectUri?: string
-) {
+): Promise<Auth.OAuth2Client> {
     if (oauth2Client) {
-        return oauth2Client;
+        // Validate existing client
+        const isValid = await validateOAuth2Client(oauth2Client);
+        if (isValid) {
+            return oauth2Client;
+        }
+        oauth2Client = null; // Reset if invalid
     }
 
     if (refreshToken) {
-        oauth2Client = createOAuth2ClientFromRefreshToken(
-            clientId,
-            clientSecret,
-            refreshToken
-        );
-    } else {
-        oauth2Client = await createOAuth2Client(
-            clientId,
-            clientSecret,
-            redirectUri ?? ""
-        );
+        try {
+            const client = createOAuth2ClientFromRefreshToken(
+                clientId,
+                clientSecret,
+                refreshToken
+            );
+
+            // Validate the new client
+            const isValid = await validateOAuth2Client(client);
+            if (isValid) {
+                oauth2Client = client;
+                return client;
+            }
+
+            await log(
+                "Refresh token is invalid or expired",
+                "Google OAuth2",
+                "error",
+                true
+            );
+        } catch (error) {
+            await log(
+                `Error creating OAuth2 client: ${error}`,
+                "Google OAuth2",
+                "error",
+                true
+            );
+        }
     }
-    return oauth2Client;
+
+    if (!redirectUri) {
+        throw new Error("Redirect URI is required for new authentication");
+    }
+
+    return await createOAuth2Client(clientId, clientSecret, redirectUri);
 }
 
 export type Email = {
@@ -144,5 +171,25 @@ export async function sendEmail(
     } catch (error) {
         console.error("Error sending email:", error);
         throw error;
+    }
+}
+
+async function validateOAuth2Client(
+    client: Auth.OAuth2Client
+): Promise<boolean> {
+    try {
+        // Try to get token info which will fail if token is invalid
+        const tokenInfo = await client.getTokenInfo(
+            client.credentials.access_token || ""
+        );
+        return !!tokenInfo.email;
+    } catch (error) {
+        // Try refreshing the token if initial validation fails
+        try {
+            await client.getAccessToken();
+            return true;
+        } catch (refreshError) {
+            return false;
+        }
     }
 }
