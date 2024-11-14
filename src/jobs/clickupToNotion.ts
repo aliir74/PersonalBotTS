@@ -252,7 +252,7 @@ function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
     return {
         id: "new",
         createdTime: new Date(),
-        content: task.description,
+        content: "", //task.description,
         properties: {
             dashboard: "Worklog",
             name: task.name,
