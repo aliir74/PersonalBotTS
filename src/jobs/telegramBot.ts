@@ -4,7 +4,7 @@ import { AbanEvent } from "./mrbilitToTelegram";
 import { clickupToNotion } from "./clickupToNotion";
 import { notionToEmail } from "./notionToEmail";
 import { log } from "../clients/logger";
-import { authenticateTelegramAccount } from "../clients/telegram/personalAccount";
+// import { authenticateTelegramAccount } from "../clients/telegram/personalAccount";
 
 // Define commands interface
 interface BotCommand {
@@ -26,10 +26,10 @@ const commands: BotCommand[] = [
         command: "notion_to_email",
         description: "Send Notion tasks to email"
     },
-    {
-        command: "auth_telegram_account",
-        description: "Authenticate Telegram account"
-    },
+    // {
+    //     command: "auth_telegram_account",
+    //     description: "Authenticate Telegram account"
+    // },
     {
         command: "restart_app",
         description: "Restart the bot application"
@@ -94,19 +94,19 @@ bot.command("notion_to_email", async (ctx) => {
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
 
-bot.command("auth_telegram_account", async (ctx) => {
-    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
-        return;
-    }
-    await log("/auth_telegram_account", "Telegram Bot", "success");
-    const message = await ctx.reply("Starting auth process...");
-    try {
-        await authenticateTelegramAccount();
-    } catch (error) {
-        await log((error as Error).message, "Telegram Auth", "error", true);
-    }
-    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
-});
+// bot.command("auth_telegram_account", async (ctx) => {
+//     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+//         return;
+//     }
+//     await log("/auth_telegram_account", "Telegram Bot", "success");
+//     const message = await ctx.reply("Starting auth process...");
+//     try {
+//         await authenticateTelegramAccount();
+//     } catch (error) {
+//         await log((error as Error).message, "Telegram Auth", "error", true);
+//     }
+//     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
+// });
 
 bot.command("restart_app", async (ctx) => {
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
