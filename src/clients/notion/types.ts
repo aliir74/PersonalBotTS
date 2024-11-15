@@ -31,16 +31,18 @@ export async function convertNotionResponseToTask(
     let name = "";
     let emoji = "";
     if (personal) {
-        const projectId = (params.properties.Project as any).relation[0].id;
+        const projectId = (params.properties.Project as any).relation[0]?.id;
         if (projectId && personalDashboardIdToProjectName[projectId]) {
             projectName = personalDashboardIdToProjectName[projectId];
-        } else {
+        } else if (projectId) {
             const project = await getPersonalProject(projectId);
             name = (project.properties["Project name"] as any)?.title[0]?.text
                 ?.content;
             emoji = (project.icon as any).emoji ?? "";
             projectName = emoji + name;
             personalDashboardIdToProjectName[projectId] = emoji + name;
+        } else {
+            projectName = "";
         }
     }
     return {

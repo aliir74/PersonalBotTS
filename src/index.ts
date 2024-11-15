@@ -8,6 +8,7 @@ import { NODE_ENV } from "./environments";
 import { updateDoneTasks } from "./jobs/automateNotionPersonalDashboard";
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
+    // updateDoneTasks();
 } else {
     // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
     schedule("*/15 8-23 * * *", async () => {
