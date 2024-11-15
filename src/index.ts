@@ -5,6 +5,7 @@ import "./jobs/telegramBot";
 import { log } from "./clients/logger";
 import { automateNotionWorkLog } from "./jobs/automateNotionWorkLog";
 import { NODE_ENV } from "./environments";
+import { updateDoneTasks } from "./jobs/automateNotionPersonalDashboard";
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
 } else {
@@ -49,6 +50,20 @@ if (NODE_ENV !== "production") {
             await log(
                 (error as Error).message,
                 "Automate Notion Worklog",
+                "error",
+                true
+            );
+        }
+    });
+
+    // Every 15 minutes, Automate Notion Personal Dashboard
+    schedule("*/15 8-23 * * *", async () => {
+        try {
+            await updateDoneTasks();
+        } catch (error) {
+            await log(
+                (error as Error).message,
+                "Automate Notion Personal Dashboard",
                 "error",
                 true
             );

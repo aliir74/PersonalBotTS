@@ -5,6 +5,7 @@ import { clickupToNotion } from "./clickupToNotion";
 import { notionToEmail } from "./notionToEmail";
 import { log } from "../clients/logger";
 import { authenticateTelegramAccount } from "../clients/telegram/personalAccount";
+import { updateDoneTasks } from "./automateNotionPersonalDashboard";
 
 // Define commands interface
 interface BotCommand {
@@ -18,6 +19,10 @@ const commands: BotCommand[] = [
     //     command: "status_trains",
     //     description: "Check train status"
     // },
+    {
+        command: "automate_notion_personal_dashboard",
+        description: "Automate Notion Personal Dashboard"
+    },
     {
         command: "clickup_to_notion",
         description: "Sync ClickUp tasks to Notion"
@@ -119,4 +124,18 @@ bot.command("restart_app", async (ctx) => {
     setTimeout(() => {
         process.exit(0);
     }, 3000);
+});
+
+bot.command("automate_notion_personal_dashboard", async (ctx) => {
+    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+        return;
+    }
+    await log("/automate_notion_personal_dashboard", "Telegram Bot", "success");
+    const message = await ctx.reply("Wait a minute...");
+    try {
+        await updateDoneTasks(true);
+    } catch (error) {
+        await log((error as Error).message, "Notion to Email", "error", true);
+    }
+    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
