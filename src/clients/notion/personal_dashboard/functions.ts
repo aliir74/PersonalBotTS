@@ -16,7 +16,7 @@ export async function getPersonalTasksByProjectNameFilter(
         filter: {
             and: [
                 {
-                    property: "Name",
+                    property: "Task name",
                     rich_text: {
                         does_not_contain: doesNotContain
                     }

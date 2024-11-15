@@ -42,6 +42,6 @@ export function convertNotionResponseToPersonalNotionProperties(
         priority: params.Priority?.select?.name ?? PersonalTaskPriority.LOW,
         automated: params.Automated?.checkbox,
         link: params.Link?.url,
-        projectName: projectName.replace("undefined", "")
+        projectName: projectName
     };
 }

@@ -38,7 +38,7 @@ export async function convertNotionResponseToTask(
             const project = await getPersonalProject(projectId);
             name = (project.properties["Project name"] as any)?.title[0]?.text
                 ?.content;
-            emoji = (project.icon as any).emoji;
+            emoji = (project.icon as any).emoji ?? "";
             projectName = emoji + name;
             personalDashboardIdToProjectName[projectId] = emoji + name;
         }
