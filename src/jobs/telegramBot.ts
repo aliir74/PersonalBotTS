@@ -20,7 +20,7 @@ const commands: BotCommand[] = [
     //     description: "Check train status"
     // },
     {
-        command: "automate_notion_personal_dashboard",
+        command: "notion_personal",
         description: "Automate Notion Personal Dashboard"
     },
     {
@@ -126,16 +126,16 @@ bot.command("restart_app", async (ctx) => {
     }, 3000);
 });
 
-bot.command("automate_notion_personal_dashboard", async (ctx) => {
+bot.command("notion_personal", async (ctx) => {
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
-    await log("/automate_notion_personal_dashboard", "Telegram Bot", "success");
+    await log("/notion_personal", "Telegram Bot", "success");
     const message = await ctx.reply("Wait a minute...");
     try {
         await updateDoneTasks(true);
     } catch (error) {
-        await log((error as Error).message, "Notion to Email", "error", true);
+        await log((error as Error).message, "Notion Personal Dashboard", "error", true);
     }
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
