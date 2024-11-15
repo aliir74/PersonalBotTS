@@ -14,10 +14,20 @@ export async function getPersonalTasksByProjectNameFilter(
     const response = await notionClient.databases.query({
         database_id: NOTION_PERSONAL_DATABASE_ID,
         filter: {
-            property: "Name",
-            rich_text: {
-                does_not_contain: doesNotContain
-            }
+            and: [
+                {
+                    property: "Name",
+                    rich_text: {
+                        does_not_contain: doesNotContain
+                    }
+                },
+                {
+                    property: "Status",
+                    status: {
+                        equals: PersonalTaskStatus.DONE
+                    }
+                }
+            ]
         }
     });
     const tasks = await Promise.all(
