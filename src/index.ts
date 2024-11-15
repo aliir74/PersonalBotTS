@@ -42,7 +42,7 @@ if (NODE_ENV !== "production") {
     });
 
     // Every 15 minutes, Automate Notion Worklog
-    schedule("*/15 8-23 * * *", async () => {
+    schedule("*/15 8-23 * * 1-5", async () => {
         try {
             await automateNotionWorkLog();
         } catch (error) {
