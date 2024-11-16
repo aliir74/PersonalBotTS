@@ -6,6 +6,7 @@ import { notionToEmail } from "./notionToEmail";
 import { log } from "../clients/logger";
 import { authenticateTelegramAccount } from "../clients/telegram/personalAccount";
 import { updateDoneTasks } from "./automateNotionPersonalDashboard";
+import { setCompletedMonthForWorklogTasks } from "./automateNotionWorkLog";
 
 // Define commands interface
 interface BotCommand {
@@ -38,6 +39,10 @@ const commands: BotCommand[] = [
     {
         command: "restart_app",
         description: "Restart the bot application"
+    },
+    {
+        command: "archive_worklog_tasks",
+        description: "Archive worklog tasks"
     }
 ];
 
@@ -135,7 +140,31 @@ bot.command("notion_personal", async (ctx) => {
     try {
         await updateDoneTasks(true);
     } catch (error) {
-        await log((error as Error).message, "Notion Personal Dashboard", "error", true);
+        await log(
+            (error as Error).message,
+            "Notion Personal Dashboard",
+            "error",
+            true
+        );
+    }
+    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
+});
+
+bot.command("archive_worklog_tasks", async (ctx) => {
+    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+        return;
+    }
+    await log("/archive_worklog_tasks", "Telegram Bot", "success");
+    const message = await ctx.reply("Wait a minute...");
+    try {
+        await setCompletedMonthForWorklogTasks();
+    } catch (error) {
+        await log(
+            (error as Error).message,
+            "Archive Worklog Tasks",
+            "error",
+            true
+        );
     }
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });

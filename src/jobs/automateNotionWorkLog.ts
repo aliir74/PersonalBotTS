@@ -11,6 +11,10 @@ import { notionClient } from "../clients/notion";
 import { NOTION_WORKLOG_DATABASE_ID } from "../environments";
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
+import {
+    getDoneTasksWithoutCompletedMonth,
+    setCompletedMonth
+} from "../clients/notion/worklog_dashboard/functions";
 export async function automateNotionWorkLog() {
     const tasks = await fetchTasks([
         WorklogTaskStatus.IN_PROGRESS,
@@ -92,6 +96,21 @@ async function setDateToToday(tasks: NotionTask[]) {
     );
     await log(
         `Set date to today for ${tasks.length} tasks`,
+        "Automate Notion Worklog",
+        "success"
+    );
+}
+
+export async function setCompletedMonthForWorklogTasks() {
+    const tasks = await getDoneTasksWithoutCompletedMonth();
+    await log(
+        `Found ${tasks.length} done tasks without completed month`,
+        "Automate Notion Worklog",
+        "success"
+    );
+    await Promise.all(tasks.map(setCompletedMonth));
+    await log(
+        "Set completed month for done tasks",
         "Automate Notion Worklog",
         "success"
     );

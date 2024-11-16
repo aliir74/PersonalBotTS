@@ -10,7 +10,8 @@ export enum WorklogTaskStatus {
     DONE = "Done",
     IN_PROGRESS = "In progress",
     NOT_STARTED = "Not started",
-    BLOCKED = "Blocked"
+    BLOCKED = "Blocked",
+    COMPLETED = "Completed"
 }
 
 export type WorklogNotionProperties = {
@@ -24,7 +25,6 @@ export type WorklogNotionProperties = {
     type: WorklogTaskType;
     link: string;
 };
-
 
 export function convertNotionResponseToWorklogNotionProperties(
     params: Record<string, any>

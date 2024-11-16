@@ -67,3 +67,81 @@ export async function getWorkLogNotionTasks(): Promise<NotionTask[]> {
     );
     return notionTasks;
 }
+
+export async function getDoneTasksWithoutCompletedMonth(): Promise<
+    NotionTask[]
+> {
+    let allResults: DatabaseObjectResponse[] = [];
+    let hasMore = true;
+    let startCursor = undefined;
+
+    while (hasMore) {
+        const response = await notionClient.databases.query({
+            database_id: NOTION_WORKLOG_DATABASE_ID,
+            start_cursor: startCursor as string | undefined,
+            filter: {
+                and: [
+                    {
+                        property: "Status",
+                        status: {
+                            equals: WorklogTaskStatus.DONE
+                        }
+                    },
+                    {
+                        property: "Date",
+                        date: {
+                            is_not_empty: true
+                        }
+                    },
+                    {
+                        property: "Completed Month",
+                        date: {
+                            is_empty: true
+                        }
+                    }
+                ]
+            }
+        });
+
+        allResults = [
+            ...allResults,
+            ...(response.results as DatabaseObjectResponse[])
+        ];
+        hasMore = response.has_more;
+        startCursor = response.next_cursor;
+    }
+
+    const notionTasks = await Promise.all(
+        allResults.map((result) => {
+            return convertNotionResponseToTask(
+                result as DatabaseObjectResponse,
+                false
+            );
+        })
+    );
+    return notionTasks;
+}
+
+export async function setCompletedMonth(task: NotionTask) {
+    if (task.properties.dashboard !== "Worklog") {
+        return;
+    }
+    await notionClient.pages.update({
+        page_id: task.id,
+        properties: {
+            Status: {
+                status: {
+                    name: WorklogTaskStatus.COMPLETED
+                }
+            },
+            "Completed Month": {
+                date: {
+                    start:
+                        new Date(task.properties.date)
+                            .toISOString()
+                            .slice(0, 7) + "-01"
+                }
+            }
+        }
+    });
+}
