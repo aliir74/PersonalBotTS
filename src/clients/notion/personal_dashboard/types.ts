@@ -8,7 +8,7 @@ export enum PersonalTaskStatus {
     DONE = "Done",
     IN_PROGRESS = "In progress",
     NOT_STARTED = "Not started",
-    BLOCKED = "Blocked"
+    ARCHIVED = "Archived"
 }
 
 export enum PersonalTaskPriority {

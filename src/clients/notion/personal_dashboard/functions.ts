@@ -37,10 +37,20 @@ export async function getPersonalTasksByEmojiFilter(
                     ]
                 },
                 {
-                    property: "Status",
-                    status: {
-                        equals: PersonalTaskStatus.DONE
-                    }
+                    or: [
+                        {
+                            property: "Status",
+                            status: {
+                                equals: PersonalTaskStatus.DONE
+                            }
+                        },
+                        {
+                            property: "Status",
+                            status: {
+                                equals: PersonalTaskStatus.ARCHIVED
+                            }
+                        }
+                    ]
                 }
             ]
         }
