@@ -1,35 +1,32 @@
 import {
-    getPersonalTasksByProjectNameFilter,
-    updateTaskName
+    getPersonalTasksByEmojiFilter,
+    updateIcon
 } from "../clients/notion/personal_dashboard/functions";
 import { log } from "../clients/logger";
 
 export async function updateDoneTasks(manualTrigger: boolean = false) {
     await log(
-        "Updating done tasks name",
-        "automateNotionPersonalDashboard",
+        "Updating done tasks emoji icon",
+        "Automate Notion Personal Dashboard",
         "success",
         manualTrigger
     );
-    const DONE_CHARACTER = "✅";
-    const tasks = await getPersonalTasksByProjectNameFilter(DONE_CHARACTER);
+    const DONE_EMOJI = "✅";
+    const tasks = await getPersonalTasksByEmojiFilter(DONE_EMOJI);
     await log(
-        `Found ${tasks.length} done tasks for update`,
-        "automateNotionPersonalDashboard",
+        `Found ${tasks.length} done tasks for updating emoji icon`,
+        "Automate Notion Personal Dashboard",
         "success",
         manualTrigger
     );
     await Promise.all(
         tasks.map(async (task) => {
-            await updateTaskName(
-                task.id,
-                DONE_CHARACTER + task.properties.name
-            );
+            await updateIcon(task.id, DONE_EMOJI);
         })
     );
     await log(
-        "Done tasks name updated",
-        "automateNotionPersonalDashboard",
+        "Updated emoji icon for done tasks",
+        "Automate Notion Personal Dashboard",
         "success",
         manualTrigger
     );

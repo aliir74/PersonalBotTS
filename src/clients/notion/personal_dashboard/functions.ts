@@ -8,18 +8,33 @@ import { NOTION_PERSONAL_DATABASE_ID } from "../../../environments";
 import { convertNotionResponseToTask } from "../types";
 import { PersonalTaskStatus } from "./types";
 
-export async function getPersonalTasksByProjectNameFilter(
-    doesNotContain: string
+export async function getPersonalTasksByEmojiFilter(
+    emoji: string
 ): Promise<NotionTask[]> {
+    const threeMonthsAgo = new Date(
+        new Date().setMonth(new Date().getMonth() - 3)
+    )
+        .toISOString()
+        .split("T")[0];
     const response = await notionClient.databases.query({
         database_id: NOTION_PERSONAL_DATABASE_ID,
         filter: {
             and: [
                 {
-                    property: "Task name",
-                    rich_text: {
-                        does_not_contain: doesNotContain
-                    }
+                    or: [
+                        {
+                            property: "Due",
+                            date: {
+                                after: threeMonthsAgo
+                            }
+                        },
+                        {
+                            property: "Due",
+                            date: {
+                                is_empty: true
+                            }
+                        }
+                    ]
                 },
                 {
                     property: "Status",
@@ -30,8 +45,16 @@ export async function getPersonalTasksByProjectNameFilter(
             ]
         }
     });
+    const filteredResults = response.results.filter((result) => {
+        const pageResult = result as PageObjectResponse;
+        return !(
+            pageResult.icon &&
+            pageResult.icon.type === "emoji" &&
+            pageResult.icon.emoji === emoji
+        );
+    });
     const tasks = await Promise.all(
-        response.results.map((result) => {
+        filteredResults.map((result) => {
             return convertNotionResponseToTask(
                 result as DatabaseObjectResponse,
                 true
@@ -41,11 +64,12 @@ export async function getPersonalTasksByProjectNameFilter(
     return tasks;
 }
 
-export async function updateTaskName(id: string, name: string): Promise<void> {
+export async function updateIcon(id: string, icon: string): Promise<void> {
     await notionClient.pages.update({
         page_id: id,
-        properties: {
-            Name: { rich_text: [{ text: { content: name } }] }
+        icon: {
+            type: "emoji",
+            emoji: icon as any
         }
     });
 }
