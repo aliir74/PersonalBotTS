@@ -1,6 +1,8 @@
 import {
-    MY_TELEGRAM_USER_ID,
-    NOTION_WORKLOG_DATABASE_ID
+    NOTION_WORKLOG_DATABASE_ID,
+    WORK_CLICKUP_API_KEY,
+    WORK_CLICKUP_LIST_ID,
+    WORK_CLICKUP_USER_ID
 } from "../environments";
 
 import { getMyTasksFromClickUp } from "../clients/clickup/functions";
@@ -8,21 +10,27 @@ import {
     isPersonalNotionProperties,
     NotionTask
 } from "../clients/notion/types";
-import { WorklogTaskStatus } from "../clients/notion/worklog_dashboard/types";
+import {
+    WorklogNotionProperties,
+    WorklogTaskStatus
+} from "../clients/notion/worklog_dashboard/types";
 import { getWorkLogNotionTasks } from "../clients/notion/worklog_dashboard/functions";
-import { ClickUpStatus, ClickUpTask } from "../clients/clickup/types";
+import { ClickUpTask } from "../clients/clickup/types";
+import { WorkClickUpStatus } from "../clients/clickup/work/types";
 import { notionClient } from "../clients/notion";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { log } from "../clients/logger";
-import { retryDecorator, retry } from "ts-retry-promise";
+import { retryDecorator } from "ts-retry-promise";
 import { DEFAULT_RETRY_CONFIG } from "../consts";
 import { WorklogTaskType } from "../clients/notion/worklog_dashboard/types";
 
-export async function clickupToNotion(manualTrigger: boolean = false) {
+export const LOG_NAME = "Work ClickUp to Notion";
+
+export async function workClickupToNotion(manualTrigger: boolean = false) {
     const clickupTasks: ClickUpTask[] = await retryDecorator(
         getMyTasksFromClickUp,
         DEFAULT_RETRY_CONFIG
-    )();
+    )(WORK_CLICKUP_LIST_ID, WORK_CLICKUP_USER_ID, WORK_CLICKUP_API_KEY);
 
     const notionTasks: NotionTask[] = await retryDecorator(
         getWorkLogNotionTasks,
@@ -44,12 +52,7 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
     )(newNotionTasks);
 
     if (manualTrigger && newNotionTasks.length === 0) {
-        await log(
-            `No new tasks created in Notion`,
-            "ClickUp to Notion",
-            "success",
-            true
-        );
+        await log(`No new tasks created in Notion`, LOG_NAME, "success", true);
     }
     const stillAssignedTasks: {
         notionTask: NotionTask;
@@ -62,7 +65,7 @@ export async function clickupToNotion(manualTrigger: boolean = false) {
     if (manualTrigger && stillAssignedTasks.length === 0) {
         await log(
             `${stillAssignedTasks.length} tasks updated to not started in Notion`,
-            "ClickUp to Notion",
+            LOG_NAME,
             "success",
             true
         );
@@ -82,7 +85,7 @@ async function updateNotionTasksFromClickUp(
             }
             const newStatus = WorklogTaskStatus.NOT_STARTED;
             const newType = convertClickUpStatusToTaskType(
-                task.clickupTask.status
+                task.clickupTask.status as WorkClickUpStatus
             );
             const today = new Date().toISOString().split("T")[0];
             await notionClient.comments.create({
@@ -122,7 +125,7 @@ async function updateNotionTasksFromClickUp(
     );
     await log(
         `${tasks.length} tasks updated to not started in Notion`,
-        "ClickUp to Notion",
+        LOG_NAME,
         "success"
     );
 }
@@ -204,7 +207,7 @@ async function createNotionTasks(tasks: NotionTask[]): Promise<void> {
     );
     await log(
         `${tasks.length} new tasks created in Notion`,
-        "ClickUp to Notion",
+        LOG_NAME,
         "success"
     );
 }
@@ -215,12 +218,14 @@ async function findNotAutomatedTasks(
 ): Promise<ClickUpTask[]> {
     const tasks = clickupTasks.filter((task) => {
         return !notionTasks.some(
-            (notionTask) => notionTask.properties.link === task.url
+            (notionTask) =>
+                (notionTask.properties as WorklogNotionProperties).link ===
+                task.url
         );
     });
     await log(
         `${tasks.length} not automated tasks out of ${clickupTasks.length}`,
-        "ClickUp to Notion",
+        LOG_NAME,
         "success"
     );
     return tasks;
@@ -234,7 +239,9 @@ function findStillAssignedTasksButDoneInNotion(
         .filter((task) => task.properties.status === WorklogTaskStatus.DONE)
         .map((notionTask) => {
             const relatedClickupTask = clickupTasks.find(
-                (clickupTask) => notionTask.properties.link === clickupTask.url
+                (clickupTask) =>
+                    (notionTask.properties as WorklogNotionProperties).link ===
+                    clickupTask.url
             );
             return relatedClickupTask
                 ? { notionTask, clickupTask: relatedClickupTask }
@@ -259,7 +266,9 @@ function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
             status: WorklogTaskStatus.NOT_STARTED,
             link: task.url,
             automated: true,
-            type: convertClickUpStatusToTaskType(task.status),
+            type: convertClickUpStatusToTaskType(
+                task.status as WorkClickUpStatus
+            ),
             priority: task.priority?.priority === "urgent",
             date: new Date().toISOString().split("T")[0]
         }
@@ -267,7 +276,7 @@ function convertClickUpToNotionTask(task: ClickUpTask): NotionTask {
 }
 
 function convertClickUpStatusToTaskType(
-    status: ClickUpStatus
+    status: WorkClickUpStatus
 ): WorklogTaskType {
     switch (status.status) {
         case "ready for analysis":

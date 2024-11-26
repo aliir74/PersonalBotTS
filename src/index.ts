@@ -1,6 +1,8 @@
-import { notionToEmail } from "./jobs/notionToEmail";
 import { schedule } from "node-cron";
-import { clickupToNotion } from "./jobs/clickupToNotion";
+import {
+    workClickupToNotion,
+    LOG_NAME as WORK_LOG_NAME
+} from "./jobs/workClickupToNotion";
 import "./jobs/telegramBot";
 import { log } from "./clients/logger";
 import {
@@ -9,33 +11,32 @@ import {
 } from "./jobs/automateNotionWorkLog";
 import { NODE_ENV } from "./environments";
 import { updateDoneTasks } from "./jobs/automateNotionPersonalDashboard";
+import {
+    ideatherapyClickupToNotion,
+    LOG_NAME as IDEATHERAPY_LOG_NAME
+} from "./jobs/ideatherapyClickupToNotion";
 
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
-    // setCompletedMonthForWorklogTasks();
+    // ideatherapyClickupToNotion();
 } else {
-    // Every 15 minutes, between 08:00 AM and 11:59 PM, All days
-    schedule("*/15 8-23 * * *", async () => {
-        try {
-            await notionToEmail();
-        } catch (error) {
-            await log(
-                (error as Error).message,
-                "Notion to Email",
-                "error",
-                true
-            );
-        }
-    });
-
     // Every 5 minutes, between 08:00 AM and 11:59 PM, Weekdays
     schedule("*/5 8-23 * * 1-5", async () => {
         try {
-            await clickupToNotion();
+            await workClickupToNotion();
+        } catch (error) {
+            await log((error as Error).message, WORK_LOG_NAME, "error", true);
+        }
+    });
+
+    // Every 5 minutes
+    schedule("*/5 * * * *", async () => {
+        try {
+            await ideatherapyClickupToNotion();
         } catch (error) {
             await log(
                 (error as Error).message,
-                "ClickUp to Notion",
+                IDEATHERAPY_LOG_NAME,
                 "error",
                 true
             );

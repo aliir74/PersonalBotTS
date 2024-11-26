@@ -18,9 +18,28 @@ export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
 export const GOOGLE_REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN ?? "";
 export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI ?? "";
 
-export const CLICKUP_API_KEY = process.env.CLICKUP_API_KEY ?? "";
-export const CLICKUP_LIST_ID = Number(process.env.CLICKUP_LIST_ID ?? "");
-export const CLICKUP_USER_ID = Number(process.env.CLICKUP_USER_ID ?? "");
+export const WORK_CLICKUP_API_KEY = process.env.WORK_CLICKUP_API_KEY ?? "";
+export const WORK_CLICKUP_LIST_ID = Number(
+    process.env.WORK_CLICKUP_LIST_ID ?? ""
+);
+export const WORK_CLICKUP_USER_ID = Number(
+    process.env.WORK_CLICKUP_USER_ID ?? ""
+);
+export const IDEATHERAPY_CLICKUP_API_KEY =
+    process.env.IDEATHERAPY_CLICKUP_API_KEY ?? "";
+export const IDEATHERAPY_CLICKUP_LIST_ID = Number(
+    process.env.IDEATHERAPY_CLICKUP_LIST_ID ?? ""
+);
+export const IDEATHERAPY_CLICKUP_USER_ID = Number(
+    process.env.IDEATHERAPY_CLICKUP_USER_ID ?? ""
+);
+export const AZTA_CLICKUP_LIST_ID = Number(
+    process.env.AZTA_CLICKUP_LIST_ID ?? ""
+);
+export const AZTA_CLICKUP_USER_ID = Number(
+    process.env.AZTA_CLICKUP_USER_ID ?? ""
+);
+
 export const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL ?? "";
 export const GOOGLE_SUBJECT = process.env.GOOGLE_SUBJECT ?? "";
 

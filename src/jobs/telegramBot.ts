@@ -1,12 +1,11 @@
 import { bot } from "../clients/telegram/bot";
 import { MY_TELEGRAM_USER_ID, TELEGRAM_GROUP_ID } from "../environments";
 import { AbanEvent } from "./mrbilitToTelegram";
-import { clickupToNotion } from "./clickupToNotion";
-import { notionToEmail } from "./notionToEmail";
 import { log } from "../clients/logger";
-import { authenticateTelegramAccount } from "../clients/telegram/personalAccount";
 import { updateDoneTasks } from "./automateNotionPersonalDashboard";
 import { setCompletedMonthForWorklogTasks } from "./automateNotionWorkLog";
+import { ideatherapyClickupToNotion } from "./ideatherapyClickupToNotion";
+import { workClickupToNotion } from "./workClickupToNotion";
 
 // Define commands interface
 interface BotCommand {
@@ -25,12 +24,12 @@ const commands: BotCommand[] = [
         description: "Automate Notion Personal Dashboard"
     },
     {
-        command: "clickup_to_notion",
-        description: "Sync ClickUp tasks to Notion"
+        command: "work_clickup_to_notion",
+        description: "Sync Work ClickUp tasks to Notion"
     },
     {
-        command: "notion_to_email",
-        description: "Send Notion tasks to email"
+        command: "ideatherapy_clickup_to_notion",
+        description: "Sync Ideatherapy ClickUp tasks to Notion"
     },
     {
         command: "auth_telegram_account",
@@ -76,47 +75,57 @@ bot.command("status_trains", async (ctx) => {
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
 
-bot.command("clickup_to_notion", async (ctx) => {
-    await log("/clickup_to_notion", "Telegram Bot", "success");
+bot.command("work_clickup_to_notion", async (ctx) => {
+    await log("/work_clickup_to_notion", "Telegram Bot", "success");
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
     const message = await ctx.reply("Wait a minute...");
     try {
-        await clickupToNotion(true);
+        await workClickupToNotion(true);
     } catch (error) {
-        await log((error as Error).message, "ClickUp to Notion", "error", true);
+        await log(
+            (error as Error).message,
+            "Work ClickUp to Notion",
+            "error",
+            true
+        );
     }
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
 
-bot.command("notion_to_email", async (ctx) => {
-    await log("/notion_to_email", "Telegram Bot", "success");
+bot.command("ideatherapy_clickup_to_notion", async (ctx) => {
+    await log("/ideatherapy_clickup_to_notion", "Telegram Bot", "success");
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
     const message = await ctx.reply("Wait a minute...");
     try {
-        await notionToEmail(true);
+        await ideatherapyClickupToNotion(true);
     } catch (error) {
-        await log((error as Error).message, "Notion to Email", "error", true);
+        await log(
+            (error as Error).message,
+            "Ideatherapy ClickUp to Notion",
+            "error",
+            true
+        );
     }
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
 });
 
-bot.command("auth_telegram_account", async (ctx) => {
-    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
-        return;
-    }
-    await log("/auth_telegram_account", "Telegram Bot", "success");
-    const message = await ctx.reply("Starting auth process...");
-    try {
-        await authenticateTelegramAccount();
-    } catch (error) {
-        await log((error as Error).message, "Telegram Auth", "error", true);
-    }
-    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
-});
+// bot.command("auth_telegram_account", async (ctx) => {
+//     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+//         return;
+//     }
+//     await log("/auth_telegram_account", "Telegram Bot", "success");
+//     const message = await ctx.reply("Starting auth process...");
+//     try {
+//         await authenticateTelegramAccount();
+//     } catch (error) {
+//         await log((error as Error).message, "Telegram Auth", "error", true);
+//     }
+//     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
+// });
 
 bot.command("restart_app", async (ctx) => {
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {

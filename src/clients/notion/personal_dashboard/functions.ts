@@ -84,6 +84,28 @@ export async function updateIcon(id: string, icon: string): Promise<void> {
     });
 }
 
+export async function getAutomatedPersonalTasks(): Promise<NotionTask[]> {
+    const response = await notionClient.databases.query({
+        database_id: NOTION_PERSONAL_DATABASE_ID,
+        filter: {
+            property: "Automated",
+            checkbox: {
+                equals: true
+            }
+        }
+    });
+    const tasks = await Promise.all(
+        response.results.map((result) => {
+            console.log(result);
+            return convertNotionResponseToTask(
+                result as DatabaseObjectResponse,
+                true
+            );
+        })
+    );
+    return tasks;
+}
+
 export async function getPersonalTasksByDueDate(
     dueDate: Date,
     filterAutomated: boolean = true

@@ -1,15 +1,11 @@
 import axios from "axios";
-import {
-    CLICKUP_API_KEY,
-    CLICKUP_LIST_ID,
-    CLICKUP_USER_ID
-} from "../../environments";
 import { ClickUpResponse, ClickUpTask } from "./types";
 import { log } from "../logger";
 
 export async function getMyTasksFromClickUp(
-    listId: number = CLICKUP_LIST_ID,
-    userId: number = CLICKUP_USER_ID
+    listId: number,
+    userId: number,
+    apiKey: string
 ): Promise<ClickUpTask[]> {
     let allTasks: ClickUpTask[] = [];
     let lastPage = false;
@@ -26,7 +22,7 @@ export async function getMyTasksFromClickUp(
             `https://api.clickup.com/api/v2/list/${listId}/task?${query}`,
             {
                 headers: {
-                    Authorization: CLICKUP_API_KEY
+                    Authorization: apiKey
                 }
             }
         );

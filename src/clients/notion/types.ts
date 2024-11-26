@@ -72,3 +72,9 @@ export function isPersonalNotionProperties(
 ): properties is PersonalNotionProperties {
     return properties.dashboard === "Personal";
 }
+
+export function isWorklogNotionProperties(
+    properties: PersonalNotionProperties | WorklogNotionProperties
+): properties is WorklogNotionProperties {
+    return properties.dashboard === "Worklog";
+}
