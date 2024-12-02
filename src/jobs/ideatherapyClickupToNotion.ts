@@ -16,10 +16,69 @@ import {
     PersonalNotionProperties,
     PersonalTaskStatus
 } from "../clients/notion/personal_dashboard/types";
-import { IdeatherapyClickUpStatus } from "../clients/clickup/ideatherapy/types";
-
+import {
+    IdeatherapyClickUpStatus,
+    IdeatherapyClickUpStatusName
+} from "../clients/clickup/ideatherapy/types";
+import { REVERT_EMOJI } from "../consts";
 const IDEATHERAPY_PROJECT_ID = "13ca06ee07ab806896e2da5b4c6935a6";
 export const LOG_NAME = "Ideatherapy ClickUp to Notion";
+
+export async function ideatherapyClickupToNotionUpdate(
+    manualTrigger: boolean = false
+) {
+    const clickupTasks: ClickUpTask[] = await getMyTasksFromClickUp(
+        IDEATHERAPY_CLICKUP_LIST_ID,
+        IDEATHERAPY_CLICKUP_USER_ID,
+        IDEATHERAPY_CLICKUP_API_KEY
+    );
+
+    const automatedNotionTasks: NotionTask[] =
+        await getAutomatedPersonalTasks();
+
+    // Find incomplete ClickUp tasks and update corresponding Notion tasks
+    const incompleteTasks = clickupTasks.filter(
+        (task) =>
+            task.status.status !== IdeatherapyClickUpStatusName.COMPLETE &&
+            task.status.status !== IdeatherapyClickUpStatusName.TODO
+    );
+
+    await Promise.all(
+        incompleteTasks.map(async (clickupTask) => {
+            const matchingNotionTask = automatedNotionTasks.find((nt) => {
+                const props = nt.properties as PersonalNotionProperties;
+                return (
+                    props.url === clickupTask.url &&
+                    props.status === PersonalTaskStatus.DONE
+                );
+            });
+
+            if (matchingNotionTask) {
+                await notionClient.pages.update({
+                    page_id: matchingNotionTask.id,
+                    properties: {
+                        Status: {
+                            status: {
+                                name: PersonalTaskStatus.NOT_STARTED
+                            }
+                        }
+                    },
+                    icon: {
+                        type: "emoji",
+                        emoji: REVERT_EMOJI
+                    }
+                });
+            }
+        })
+    );
+
+    await log(
+        `Updated ${incompleteTasks.length} Notion tasks based on incomplete ClickUp tasks`,
+        LOG_NAME,
+        "success",
+        manualTrigger
+    );
+}
 
 export async function ideatherapyClickupToNotion(
     manualTrigger: boolean = false
@@ -33,7 +92,7 @@ export async function ideatherapyClickupToNotion(
     const automatedNotionTasks: NotionTask[] =
         await getAutomatedPersonalTasks();
 
-    const newClickupTasks: ClickUpTask[] = await findNewClickupTasks(
+    const newClickupTasks = await findNewClickupTasks(
         clickupTasks,
         automatedNotionTasks
     );

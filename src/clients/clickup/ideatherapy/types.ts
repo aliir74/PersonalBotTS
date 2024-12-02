@@ -1,4 +1,10 @@
+export enum IdeatherapyClickUpStatusName {
+    TODO = "TO DO",
+    FEASABLITY = "FEASABLITY",
+    COMPLETE = "COMPLETE"
+}
+
 export interface IdeatherapyClickUpStatus {
-    status: "TO DO" | "FEASABLITY" | "COMPLETE";
+    status: IdeatherapyClickUpStatusName;
     color: string;
 }

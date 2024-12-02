@@ -3,7 +3,7 @@ import {
     updateIcon
 } from "../clients/notion/personal_dashboard/functions";
 import { log } from "../clients/logger";
-
+import { DONE_EMOJI } from "../consts";
 export async function updateDoneTasks(manualTrigger: boolean = false) {
     await log(
         "Updating done tasks emoji icon",
@@ -11,7 +11,7 @@ export async function updateDoneTasks(manualTrigger: boolean = false) {
         "success",
         manualTrigger
     );
-    const DONE_EMOJI = "✅";
+
     const tasks = await getPersonalTasksByEmojiFilter(DONE_EMOJI);
     await log(
         `Found ${tasks.length} done tasks for updating emoji icon`,

@@ -33,6 +33,16 @@ export const IDEATHERAPY_CLICKUP_LIST_ID = Number(
 export const IDEATHERAPY_CLICKUP_USER_ID = Number(
     process.env.IDEATHERAPY_CLICKUP_USER_ID ?? ""
 );
+
+export const KAVIR_CLICKUP_API_KEY = process.env.KAVIR_CLICKUP_API_KEY ?? "";
+export const KAVIR_CLICKUP_LIST_ID = Number(
+    process.env.KAVIR_CLICKUP_LIST_ID ?? ""
+);
+export const KAVIR_CLICKUP_USER_ID = Number(
+    process.env.KAVIR_CLICKUP_USER_ID ?? ""
+);
+
+export const AZTA_CLICKUP_API_KEY = process.env.AZTA_CLICKUP_API_KEY ?? "";
 export const AZTA_CLICKUP_LIST_ID = Number(
     process.env.AZTA_CLICKUP_LIST_ID ?? ""
 );

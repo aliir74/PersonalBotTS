@@ -4,7 +4,10 @@ import { AbanEvent } from "./mrbilitToTelegram";
 import { log } from "../clients/logger";
 import { updateDoneTasks } from "./automateNotionPersonalDashboard";
 import { setCompletedMonthForWorklogTasks } from "./automateNotionWorkLog";
-import { ideatherapyClickupToNotion } from "./ideatherapyClickupToNotion";
+import {
+    ideatherapyClickupToNotion,
+    ideatherapyClickupToNotionUpdate
+} from "./ideatherapyClickupToNotion";
 import { workClickupToNotion } from "./workClickupToNotion";
 
 // Define commands interface
@@ -19,6 +22,11 @@ const commands: BotCommand[] = [
     //     command: "status_trains",
     //     description: "Check train status"
     // },
+    {
+        command: "ideatherapy_clickup_to_notion_update",
+        description:
+            "Update Ideatherapy ClickUp tasks to Notion (Revert undone tasks in notion)"
+    },
     {
         command: "notion_personal",
         description: "Automate Notion Personal Dashboard"
@@ -61,6 +69,20 @@ async function registerCommands() {
 }
 
 registerCommands();
+
+bot.command("ideatherapy_clickup_to_notion_update", async (ctx) => {
+    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+        return;
+    }
+    await log(
+        "/ideatherapy_clickup_to_notion_update",
+        "Telegram Bot",
+        "success"
+    );
+    const message = await ctx.reply("Wait a minute...");
+    await ideatherapyClickupToNotionUpdate(true);
+    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
+});
 
 bot.command("status_trains", async (ctx) => {
     if (

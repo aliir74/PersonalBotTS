@@ -29,8 +29,8 @@ if (NODE_ENV !== "production") {
         }
     });
 
-    // Every 5 minutes
-    schedule("*/5 * * * *", async () => {
+    // Every 15 minutes
+    schedule("*/15 * * * *", async () => {
         try {
             await ideatherapyClickupToNotion();
         } catch (error) {
