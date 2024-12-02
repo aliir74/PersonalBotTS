@@ -10,7 +10,6 @@ import {
 } from "./ideatherapyClickupToNotion";
 import { workClickupToNotion } from "./workClickupToNotion";
 
-// Define commands interface
 interface BotCommand {
     command: string;
     description: string;
@@ -23,9 +22,9 @@ const commands: BotCommand[] = [
     //     description: "Check train status"
     // },
     {
-        command: "ideatherapy_clickup_to_notion_update",
+        command: "ith_clickup_to_notion_update",
         description:
-            "Update Ideatherapy ClickUp tasks to Notion (Revert undone tasks in notion)"
+            "Update Ideatherapy Cli ckUp tasks to Notion (Revert undone tasks in notion)"
     },
     {
         command: "notion_personal",
@@ -70,15 +69,11 @@ async function registerCommands() {
 
 registerCommands();
 
-bot.command("ideatherapy_clickup_to_notion_update", async (ctx) => {
+bot.command("ith_clickup_to_notion_update", async (ctx) => {
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
         return;
     }
-    await log(
-        "/ideatherapy_clickup_to_notion_update",
-        "Telegram Bot",
-        "success"
-    );
+    await log("/ith_clickup_to_notion_update", "Telegram Bot", "success");
     const message = await ctx.reply("Wait a minute...");
     await ideatherapyClickupToNotionUpdate(true);
     await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
