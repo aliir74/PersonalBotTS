@@ -40,7 +40,8 @@ export async function ideatherapyClickupToNotionUpdate(
     const incompleteTasks = clickupTasks.filter(
         (task) =>
             task.status.status !== IdeatherapyClickUpStatusName.COMPLETE &&
-            task.status.status !== IdeatherapyClickUpStatusName.TODO
+            task.status.status !== IdeatherapyClickUpStatusName.TODO &&
+            task.status.status !== IdeatherapyClickUpStatusName.ARCHIVE
     );
 
     await Promise.all(

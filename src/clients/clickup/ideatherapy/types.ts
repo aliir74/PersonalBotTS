@@ -1,7 +1,9 @@
 export enum IdeatherapyClickUpStatusName {
-    TODO = "TO DO",
-    FEASABLITY = "FEASABLITY",
-    COMPLETE = "COMPLETE"
+    TODO = "to do",
+    FEASABLITY = "feasability",
+    IN_PROGRESS = "in progress",
+    COMPLETE = "complete",
+    ARCHIVE = "archive"
 }
 
 export interface IdeatherapyClickUpStatus {

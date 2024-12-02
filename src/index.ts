@@ -18,7 +18,7 @@ import {
 
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
-    // ideatherapyClickupToNotion();
+    // ideatherapyClickupToNotionUpdate(true);
 } else {
     // Every 5 minutes, between 08:00 AM and 11:59 PM, Weekdays
     schedule("*/5 8-23 * * 1-5", async () => {
