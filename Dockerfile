@@ -9,6 +9,8 @@ RUN npm install
 
 COPY . .
 
+RUN sentry-cli login
+
 RUN npm run build
 
 CMD ["npm", "run", "start:prod"]
