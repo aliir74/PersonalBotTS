@@ -5,9 +5,10 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "tsc",
+    "build": "tsc && npm run sentry:sourcemaps",
     "start:prod": "node dist/index.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org personal-w45 --project personalbotts ./dist && sentry-cli sourcemaps upload --org personal-w45 --project personalbotts ./dist"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,9 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "@sentry/cli": "^2.39.1",
+    "@sentry/node": "^8.43.0",
+    "@sentry/profiling-node": "^8.43.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "googleapis": "^144.0.0",

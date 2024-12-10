@@ -15,6 +15,7 @@ import {
     ideatherapyClickupToNotion,
     LOG_NAME as IDEATHERAPY_LOG_NAME
 } from "./jobs/ideatherapyClickupToNotion";
+import "./instrument.js";
 
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
