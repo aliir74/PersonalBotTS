@@ -3,7 +3,7 @@ export enum IdeatherapyClickUpStatusName {
     FEASABLITY = "feasability",
     IN_PROGRESS = "in progress",
     COMPLETE = "complete",
-    ARCHIVE = "archive"
+    CLOSED = "closed"
 }
 
 export interface IdeatherapyClickUpStatus {

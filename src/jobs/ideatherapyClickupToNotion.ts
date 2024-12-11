@@ -41,7 +41,7 @@ export async function ideatherapyClickupToNotionUpdate(
         (task) =>
             task.status.status !== IdeatherapyClickUpStatusName.COMPLETE &&
             task.status.status !== IdeatherapyClickUpStatusName.TODO &&
-            task.status.status !== IdeatherapyClickUpStatusName.ARCHIVE
+            task.status.status !== IdeatherapyClickUpStatusName.CLOSED
     );
 
     await Promise.all(
@@ -234,8 +234,12 @@ function convertIdeatherapyClickUpStatusToTaskStatus(
             return PersonalTaskStatus.NOT_STARTED;
         case "FEASABLITY":
             return PersonalTaskStatus.NOT_STARTED;
+        case "IN PROGRESS":
+            return PersonalTaskStatus.NOT_STARTED;
         case "COMPLETE":
             return PersonalTaskStatus.DONE;
+        case "CLOSED":
+            return PersonalTaskStatus.DONE;
     }
-    throw new Error(`Unknown status: ${status.status}`);
+    return PersonalTaskStatus.NOT_STARTED;
 }
