@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "tsc && npm run sentry:sourcemaps",
+    "build": "tsc", //&& npm run sentry:sourcemaps,
     "start:prod": "node dist/index.js",
     "format": "prettier --write .",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org personal-w45 --project personalbotts ./dist && sentry-cli sourcemaps upload --org personal-w45 --project personalbotts ./dist"
