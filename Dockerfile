@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy Sentry config
-COPY .sentryclirc ./
+# COPY .sentryclirc ./
 
 # Copy source code
 COPY . .
@@ -31,7 +31,7 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 
 # Copy Sentry config
-COPY .sentryclirc ./
+# COPY .sentryclirc ./
 
 CMD ["npm", "run", "start:prod"]
 
