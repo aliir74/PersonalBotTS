@@ -9,6 +9,7 @@ import {
     ideatherapyClickupToNotionUpdate
 } from "./ideatherapyClickupToNotion";
 import { workClickupToNotion } from "./workClickupToNotion";
+import { addSignatureOnTelegramChannel } from "./addSignatureOnTelegramChannel";
 
 interface BotCommand {
     command: string;
@@ -17,14 +18,14 @@ interface BotCommand {
 
 // Define available commands
 const commands: BotCommand[] = [
-    // {
-    //     command: "status_trains",
-    //     description: "Check train status"
-    // },
+    {
+        command: "add_signature",
+        description: "Add signature to the latest channel post if missing"
+    },
     {
         command: "ith_clickup_to_notion_update",
         description:
-            "Update Ideatherapy Cli ckUp tasks to Notion (Revert undone tasks in notion)"
+            "Update Ideatherapy ClickUp tasks to Notion (Revert undone tasks in notion)"
     },
     {
         command: "notion_personal",
@@ -68,6 +69,25 @@ async function registerCommands() {
 }
 
 registerCommands();
+
+bot.command("add_signature", async (ctx) => {
+    if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {
+        return;
+    }
+    await log("/add_signature", "Telegram Bot", "success");
+    const message = await ctx.reply("Wait a minute...");
+    try {
+        await addSignatureOnTelegramChannel(true);
+    } catch (error) {
+        await log(
+            (error as Error).message,
+            "Add Signature on Telegram Channel",
+            "error",
+            true
+        );
+    }
+    await ctx.api.deleteMessage(ctx.message?.chat.id, message.message_id);
+});
 
 bot.command("ith_clickup_to_notion_update", async (ctx) => {
     if (ctx.message?.chat.id !== MY_TELEGRAM_USER_ID) {

@@ -15,11 +15,12 @@ import {
     ideatherapyClickupToNotion,
     LOG_NAME as IDEATHERAPY_LOG_NAME
 } from "./jobs/ideatherapyClickupToNotion";
+import { addSignatureOnTelegramChannel } from "./jobs/addSignatureOnTelegramChannel";
 // import "./instrument.js";
 
 if (NODE_ENV !== "production") {
     console.log("PersonalBot is running...");
-    // ideatherapyClickupToNotionUpdate(true);
+    addSignatureOnTelegramChannel(true);
 } else {
     // Every 5 minutes, between 08:00 AM and 11:59 PM, Weekdays
     schedule("*/5 8-23 * * 1-5", async () => {
@@ -85,6 +86,20 @@ if (NODE_ENV !== "production") {
             await log(
                 (error as Error).message,
                 "Set completed month for worklog tasks",
+                "error",
+                true
+            );
+        }
+    });
+
+    // Every 5 minutes, Add signature on Telegram Channel
+    schedule("*/5 * * * *", async () => {
+        try {
+            await addSignatureOnTelegramChannel();
+        } catch (error) {
+            await log(
+                (error as Error).message,
+                "Add signature on Telegram Channel",
                 "error",
                 true
             );
