@@ -65,9 +65,12 @@ export const TELEGRAM_GROUP_ID = Number(process.env.TELEGRAM_GROUP_ID ?? "");
 export const MY_TELEGRAM_USER_ID = Number(
     process.env.MY_TELEGRAM_USER_ID ?? ""
 );
-export const TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID = Number(
-    process.env.TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID ?? ""
-);
+export const TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID =
+    NODE_ENV === "development"
+        ? Number(
+              process.env.TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID_LOCAL ?? ""
+          )
+        : Number(process.env.TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID ?? "");
 export const TELEGRAM_API_ID = process.env.TELEGRAM_API_ID ?? "";
 export const TELEGRAM_API_HASH = process.env.TELEGRAM_API_HASH ?? "";
 export const TELEGRAM_STRING_SESSION =

@@ -1,55 +1,41 @@
 import { bot } from "../clients/telegram/bot";
 import { log } from "../clients/logger";
 import { TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID } from "../environments";
-// const TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID = -1002277391398;
+import { retry } from "ts-retry-promise";
+import { DEFAULT_RETRY_CONFIG } from "../consts";
+import { Context } from "grammy";
+
 const LOG_NAME = "Add Signature on Telegram Channel";
 const SIGNATURE = "👨‍💻 @notesfromadeveloper";
-const MAX_MESSAGES_TO_PROCESS = 5;
 
-export async function addSignatureOnTelegramChannel(
-    manualTrigger: boolean = false
-) {
+// Listen for new channel posts
+bot.on("channel_post", async (ctx: Context) => {
     try {
-        const channel = await bot.api.getChat(
-            TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID
-        );
-
-        if (!channel) {
-            throw new Error("Channel not found");
+        if (ctx.chat?.id !== TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID) {
+            return;
         }
+        const message = ctx.update.channel_post;
 
-        const messages = await bot.api.getUpdates({
-            allowed_updates: ["channel_post"],
-            offset: -MAX_MESSAGES_TO_PROCESS,
-            limit: MAX_MESSAGES_TO_PROCESS
-        });
+        // Check if message has text and doesn't have signature
+        if (message?.text && !message.text.includes(SIGNATURE)) {
+            const newText = `${message.text}\n\n\n${SIGNATURE}`;
 
-        messages.forEach(async (message) => {
-            const channelPost = message.channel_post;
-            if (channelPost && !channelPost.text?.includes(SIGNATURE)) {
-                const newText = `${channelPost.text}\n\n\n${SIGNATURE}`;
-                await bot.api.editMessageText(
+            await retry(async () => {
+                await ctx.api.editMessageText(
                     TELEGRAM_NOTES_FROM_A_DEVELOPER_CHANNEL_ID,
-                    channelPost.message_id,
+                    message.message_id,
                     newText
                 );
-                await log(
-                    `Added signature to message ID: ${channelPost.message_id}`,
-                    LOG_NAME,
-                    "success",
-                    manualTrigger
-                );
-            } else if (manualTrigger) {
-                await log(
-                    "Message already has signature",
-                    LOG_NAME,
-                    "success",
-                    true
-                );
-            }
-        });
+            }, DEFAULT_RETRY_CONFIG);
+
+            await log(
+                `Added signature to message ID: ${message.message_id}`,
+                LOG_NAME,
+                "success",
+                false
+            );
+        }
     } catch (error) {
         await log((error as Error).message, LOG_NAME, "error", true);
-        throw error;
     }
-}
+});
