@@ -96,7 +96,7 @@ export async function getAutomatedPersonalTasks(): Promise<NotionTask[]> {
     });
     const tasks = await Promise.all(
         response.results.map((result) => {
-            console.log(result);
+            // console.log(result);
             return convertNotionResponseToTask(
                 result as DatabaseObjectResponse,
                 true
