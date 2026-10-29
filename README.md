@@ -1,3 +1,6 @@
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/aliir74)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/aliir74)
+
 ### Project Overview
 
 This is a TypeScript-based project that creates a personal automation bot. The
@@ -60,3 +63,11 @@ bot performs several tasks:
     -   Notion to Email: Every 15 minutes between 8 AM and 11:59 PM, all days.
     -   ClickUp to Notion: Every 5 minutes between 8 AM and 11:59 PM, weekdays
         only.
+
+## Support This Project
+
+If you find this project useful, consider supporting its development:
+
+- Star this repo
+- Report bugs and submit PRs
+- [Sponsor on GitHub](https://github.com/sponsors/aliir74) or [Buy me a coffee](https://www.buymeacoffee.com/aliir74)
